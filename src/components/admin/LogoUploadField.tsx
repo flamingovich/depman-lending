@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { resolveLogoUrl } from "@/lib/logo-url";
 
 type LogoUploadFieldProps = {
   label: string;
@@ -35,11 +36,15 @@ export function LogoUploadField({
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewVersion, setPreviewVersion] = useState(0);
   const preview = PREVIEW_BACKGROUNDS[previewTheme];
+  const previewSrc = value ? resolveLogoUrl(value) : null;
 
   async function handleFile(file: File) {
     setUploading(true);
     setUploadError(null);
+    setPreviewError(null);
 
     const body = new FormData();
     body.append("file", file);
@@ -54,7 +59,10 @@ export function LogoUploadField({
         return;
       }
 
-      if (data.url) onChange(data.url);
+      if (data.url) {
+        onChange(data.url);
+        setPreviewVersion((v) => v + 1);
+      }
     } catch {
       setUploadError("Не удалось загрузить файл");
     } finally {
@@ -79,12 +87,17 @@ export function LogoUploadField({
               borderColor: preview.border,
             }}
           >
-            {value ? (
+            {previewSrc ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
-                src={value}
+                key={`${previewSrc}-${previewVersion}`}
+                src={`${previewSrc}?v=${previewVersion}`}
                 alt=""
-                className="max-h-[72px] max-w-full object-contain"
+                className="block max-h-[72px] max-w-full object-contain"
+                onError={() =>
+                  setPreviewError("Файл загружен, но превью не открылось")
+                }
+                onLoad={() => setPreviewError(null)}
               />
             ) : (
               <span
@@ -103,7 +116,7 @@ export function LogoUploadField({
           <input
             ref={inputRef}
             type="file"
-            accept="image/png,image/webp"
+            accept="image/png,image/webp,.png,.webp"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -121,16 +134,28 @@ export function LogoUploadField({
             {uploading ? "Загрузка..." : value ? "Заменить файл" : "Выбрать файл"}
           </button>
 
-          <p className="text-xs text-slate-400">Рекомендуемый размер: 500×250 px, PNG без фона</p>
+          <p className="text-xs text-slate-400">
+            Рекомендуемый размер: 500×250 px, PNG без фона
+          </p>
 
           {value ? (
-            <button
-              type="button"
-              onClick={() => onChange("")}
-              className="w-fit text-xs font-medium text-red-400"
-            >
-              Удалить
-            </button>
+            <>
+              <p className="break-all text-[11px] text-slate-500">{value}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("");
+                  setPreviewError(null);
+                }}
+                className="w-fit text-xs font-medium text-red-400"
+              >
+                Удалить
+              </button>
+            </>
+          ) : null}
+
+          {previewError ? (
+            <p className="text-xs text-amber-400">{previewError}</p>
           ) : null}
 
           {uploadError ? (

@@ -17,12 +17,23 @@ const nextConfig: NextConfig = {
         pathname: "/uploads/**",
       },
       {
+        pathname: "/api/files/logos/**",
+      },
+      {
         pathname: "/logos/**",
       },
       {
         pathname: "/images/**",
       },
     ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/uploads/logos/:filename",
+        destination: "/api/files/logos/:filename",
+      },
+    ];
   },
 };
 

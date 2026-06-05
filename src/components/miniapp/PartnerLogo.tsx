@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTheme } from "@/components/theme/ThemeProvider";
+import { resolveLogoUrl } from "@/lib/logo-url";
 
 type PartnerLogoProps = {
   name: string;
@@ -33,10 +34,11 @@ export function PartnerLogo({
   const { theme } = useTheme();
   const { width, height } = LOGO_SIZES[variant];
 
-  const themedLogo =
+  const themedLogo = resolveLogoUrl(
     theme === "dark"
       ? logoDarkUrl || logoUrl
-      : logoLightUrl || logoUrl;
+      : logoLightUrl || logoUrl,
+  );
 
   const alignClass =
     variant === "strip" || variant === "detail"
@@ -132,7 +134,9 @@ export function usePartnerLogoSrc(
   logoDarkUrl?: string | null,
 ) {
   const { theme } = useTheme();
-  return resolveThemedLogo(theme, logoUrl, logoLightUrl, logoDarkUrl);
+  return resolveLogoUrl(
+    resolveThemedLogo(theme, logoUrl, logoLightUrl, logoDarkUrl),
+  );
 }
 
 function DetailLogoImage({
