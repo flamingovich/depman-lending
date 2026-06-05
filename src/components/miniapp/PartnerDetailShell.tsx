@@ -134,7 +134,7 @@ export function PartnerDetailShell({ partner }: PartnerDetailShellProps) {
               <div className="bonus-card-header-meta">
                 <div className="bonus-card-rating">
                   <Star
-                    className="h-3 w-3 shrink-0 fill-[var(--accent)] text-[var(--accent)]"
+                    className="shrink-0 fill-[var(--accent)] text-[var(--accent)]"
                     strokeWidth={0}
                   />
                   <span>{partner.rating.toFixed(1)}</span>
@@ -198,7 +198,7 @@ export function PartnerDetailShell({ partner }: PartnerDetailShellProps) {
               <button
                 type="button"
                 onClick={openPartner}
-                className="btn-outline-gold mt-auto flex w-full items-center justify-center rounded-full py-2.5 text-[11px]"
+                className="btn-outline-gold btn-outline-gold-play mt-auto flex w-full items-center justify-center rounded-full py-2.5"
               >
                 Играть на {partner.name}
               </button>

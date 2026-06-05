@@ -66,7 +66,7 @@ export function CompactPartnerCard({
         <Link
           href={detailHref}
           onClick={openPartner}
-          className="btn-outline-gold inline-flex w-full items-center justify-center rounded-[var(--radius-sm)] py-2 text-[10px]"
+          className="btn-outline-gold btn-outline-gold-play inline-flex w-full items-center justify-center rounded-[var(--radius-sm)] py-2.5"
           tabIndex={preview ? -1 : undefined}
         >
           {partner.ctaText}

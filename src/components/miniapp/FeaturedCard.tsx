@@ -99,7 +99,11 @@ export function FeaturedCard({
 
           <ul className="space-y-0.5">
             {items.map((item) => (
-              <CheckItem key={item} textOnDark={isChannel}>
+              <CheckItem
+                key={item}
+                textOnDark={isChannel}
+                iconVariant={isChannel ? "red" : "gold"}
+              >
                 {item}
               </CheckItem>
             ))}

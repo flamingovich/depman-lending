@@ -19,6 +19,7 @@ export type StripPartner = {
   logoDarkUrl?: string | null;
   accentColor: string;
   bonusValue?: string | null;
+  badge?: string | null;
 };
 
 const GAP = 10;
@@ -138,7 +139,9 @@ export function NewBonusesStrip({ partners }: { partners: StripPartner[] }) {
               draggable={false}
               className="new-bonus-card relative flex shrink-0 snap-start flex-col items-center px-1.5 py-2 active:scale-[0.98]"
             >
-              <span className="chip-new">NEW</span>
+              {partner.badge?.trim() ? (
+                <span className="chip-new">{partner.badge.trim()}</span>
+              ) : null}
 
               <div className="new-bonus-content flex flex-col items-center justify-center gap-0.5">
                 <PartnerLogo
@@ -149,7 +152,7 @@ export function NewBonusesStrip({ partners }: { partners: StripPartner[] }) {
                   accentColor={partner.accentColor}
                   variant="strip"
                 />
-                <p className="new-bonus-text line-clamp-2 text-center text-[10px] leading-[1.15] font-extrabold tracking-tight">
+                <p className="new-bonus-text line-clamp-2 text-center text-[10px] leading-[1.15] tracking-tight">
                   {partner.bonusValue ?? "Бонус"}
                 </p>
               </div>

@@ -82,7 +82,7 @@ export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps
           <div className="bonus-card-header-meta">
             <div className="bonus-card-rating">
               <Star
-                className="h-3 w-3 shrink-0 fill-[var(--accent)] text-[var(--accent)]"
+                className="shrink-0 fill-[var(--accent)] text-[var(--accent)]"
                 strokeWidth={0}
               />
               <span>{partner.rating.toFixed(1)}</span>
@@ -139,7 +139,7 @@ export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps
         <Link
           href={detailHref}
           onClick={openPartner}
-          className="btn-outline-gold mt-auto flex items-center justify-center rounded-full py-2 text-[10px]"
+          className="btn-outline-gold btn-outline-gold-play mt-auto flex items-center justify-center rounded-full py-2.5"
           tabIndex={preview ? -1 : undefined}
         >
           Играть на {partner.name}

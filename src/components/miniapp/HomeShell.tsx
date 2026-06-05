@@ -120,6 +120,7 @@ export function HomeShell({
     logoDarkUrl: p.logoDarkUrl,
     accentColor: p.accentColor,
     bonusValue: stripBonusValue(p),
+    badge: p.badge,
   }));
 
   return (

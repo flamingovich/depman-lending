@@ -17,7 +17,7 @@ type PartnerLogoProps = {
 const LOGO_SIZES = {
   strip: { width: 64, height: 26 },
   grid: { width: 72, height: 28 },
-  gridHeader: { width: 48, height: 20 },
+  gridHeader: { width: 64, height: 26 },
   compact: { width: 72, height: 36 },
   detail: { width: 140, height: 44 },
 } as const;
@@ -86,7 +86,7 @@ export function PartnerLogo({
       : variant === "compact"
         ? "text-xs leading-tight"
         : variant === "gridHeader"
-          ? "truncate text-[9px] leading-none"
+          ? "truncate text-[10px] leading-none"
           : variant === "detail"
             ? "text-sm leading-tight"
             : "text-[10px] leading-tight";
