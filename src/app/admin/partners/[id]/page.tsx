@@ -45,6 +45,7 @@ export default async function EditPartnerPage({ params }: PageProps) {
           bonus2Label: partner.bonus2Label ?? "",
           bonus2Value: partner.bonus2Value ?? "",
           cardLayout: partner.cardLayout,
+          kind: partner.kind,
           ctaText: partner.ctaText,
           isFeatured: partner.isFeatured,
           isActive: partner.isActive,

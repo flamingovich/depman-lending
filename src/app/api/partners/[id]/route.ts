@@ -3,6 +3,11 @@ import { z } from "zod";
 import { partnerApiErrorResponse } from "@/lib/api-errors";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import {
+  applyPartnerKindConstraints,
+  normalizePartnerKind,
+  PARTNER_KINDS,
+} from "@/lib/partner-kind";
 import { slugify } from "@/lib/utils";
 
 const bonusSchema = z.object({
@@ -33,6 +38,7 @@ const partnerSchema = z.object({
   bonus2Label: z.string().optional(),
   bonus2Value: z.string().optional(),
   cardLayout: z.enum(["grid", "compact"]).optional(),
+  kind: z.enum(["casino", "channel"]).optional(),
   inTopStrip: z.boolean().optional(),
   inBestBlock: z.boolean().optional(),
   topSortOrder: z.number().int().optional(),
@@ -67,13 +73,25 @@ export async function PATCH(request: Request, context: RouteContext) {
   try {
     await requireSession();
     const { id } = await context.params;
+    const existing = await prisma.partner.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
     const body = partnerSchema.parse(await request.json());
-    const { bonuses, features, name, slug, ...rest } = body;
+    const { bonuses, features, name, slug, kind, ...rest } = body;
+    const normalized = applyPartnerKindConstraints(
+      {
+        ...rest,
+        ...(kind !== undefined ? { kind: normalizePartnerKind(kind) } : {}),
+      },
+      existing.kind,
+    );
 
     const partner = await prisma.partner.update({
       where: { id },
       data: {
-        ...rest,
+        ...normalized,
         ...(name ? { name } : {}),
         ...(slug ? { slug } : name ? { slug: slugify(name) } : {}),
         ...(features ? { features: JSON.stringify(features) } : {}),
@@ -96,9 +114,13 @@ export async function PATCH(request: Request, context: RouteContext) {
       }
     }
 
-    if (body.isFeatured) {
+    if (body.isFeatured && partner.kind === PARTNER_KINDS.channel) {
       await prisma.partner.updateMany({
-        where: { id: { not: id }, isFeatured: true },
+        where: {
+          id: { not: id },
+          isFeatured: true,
+          kind: PARTNER_KINDS.channel,
+        },
         data: { isFeatured: false },
       });
     }

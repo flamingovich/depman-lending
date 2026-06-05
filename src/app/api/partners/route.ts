@@ -3,6 +3,11 @@ import { z } from "zod";
 import { partnerApiErrorResponse } from "@/lib/api-errors";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import {
+  applyPartnerKindConstraints,
+  normalizePartnerKind,
+  PARTNER_KINDS,
+} from "@/lib/partner-kind";
 import { slugify } from "@/lib/utils";
 
 const bonusSchema = z.object({
@@ -32,6 +37,7 @@ const partnerSchema = z.object({
   bonus2Label: z.string().optional(),
   bonus2Value: z.string().optional(),
   cardLayout: z.enum(["grid", "compact"]).optional(),
+  kind: z.enum(["casino", "channel"]).optional(),
   inTopStrip: z.boolean().optional(),
   inBestBlock: z.boolean().optional(),
   topSortOrder: z.number().int().optional(),
@@ -62,10 +68,14 @@ export async function POST(request: Request) {
     const body = partnerSchema.parse(await request.json());
     const slug = body.slug?.trim() || slugify(body.name);
     const { bonuses, features, ...rest } = body;
+    const normalized = applyPartnerKindConstraints({
+      ...rest,
+      kind: normalizePartnerKind(body.kind),
+    });
 
     const partner = await prisma.partner.create({
       data: {
-        ...rest,
+        ...normalized,
         slug,
         features: JSON.stringify(features ?? []),
         bonuses: bonuses
@@ -83,9 +93,13 @@ export async function POST(request: Request) {
       include: { bonuses: true },
     });
 
-    if (partner.isFeatured) {
+    if (partner.isFeatured && partner.kind === PARTNER_KINDS.channel) {
       await prisma.partner.updateMany({
-        where: { id: { not: partner.id }, isFeatured: true },
+        where: {
+          id: { not: partner.id },
+          isFeatured: true,
+          kind: PARTNER_KINDS.channel,
+        },
         data: { isFeatured: false },
       });
     }

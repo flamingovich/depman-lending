@@ -9,6 +9,7 @@ import { FooterInfo } from "@/components/miniapp/FooterInfo";
 import { HeaderActions } from "@/components/miniapp/HeaderActions";
 import { NewBonusesStrip } from "@/components/miniapp/NewBonusesStrip";
 import { SearchOverlay } from "@/components/miniapp/SearchOverlay";
+import { isChannelKind } from "@/lib/partner-kind";
 
 export type HomePartner = {
   id: string;
@@ -34,6 +35,7 @@ export type HomePartner = {
   topSortOrder: number;
   bestSortOrder: number;
   ctaText: string;
+  kind: string;
   isFeatured: boolean;
   sortOrder: number;
   bonuses: { title: string; value?: string | null }[];
@@ -79,27 +81,35 @@ export function HomeShell({
     );
   }, [partners, initialQuery, searchParams]);
 
-  const featured =
-    filtered.find((p) => p.isFeatured) ?? filtered[0] ?? null;
-  const rest = filtered.filter((p) => p.id !== featured?.id);
+  const channels = useMemo(
+    () => filtered.filter((p) => isChannelKind(p.kind)),
+    [filtered],
+  );
+  const casinos = useMemo(
+    () => filtered.filter((p) => !isChannelKind(p.kind)),
+    [filtered],
+  );
+
+  const channelPromo =
+    channels.find((p) => p.isFeatured) ?? channels[0] ?? null;
 
   const topPartners = useMemo(
     () =>
-      [...rest]
+      [...casinos]
         .filter((p) => p.inTopStrip)
         .sort((a, b) => a.topSortOrder - b.topSortOrder),
-    [rest],
+    [casinos],
   );
 
   const bestPartners = useMemo(
     () =>
-      [...rest]
+      [...casinos]
         .filter((p) => p.inBestBlock)
         .sort((a, b) => a.bestSortOrder - b.bestSortOrder),
-    [rest],
+    [casinos],
   );
 
-  const allPartners = useMemo(() => sortPartners(rest), [rest]);
+  const allPartners = useMemo(() => sortPartners(casinos), [casinos]);
 
   const newStrip = topPartners.map((p) => ({
     id: p.id,
@@ -127,18 +137,19 @@ export function HomeShell({
       <main className="tma-gutter-x space-y-3 overflow-visible pb-6 pt-2">
         <NewBonusesStrip partners={newStrip} />
 
-        {featured ? (
+        {channelPromo ? (
           <div className="featured-card-wrap">
             <FeaturedCard
-              slug={featured.slug}
-              name={featured.name}
-              logoUrl={featured.logoUrl}
-              logoLightUrl={featured.logoLightUrl}
-              logoDarkUrl={featured.logoDarkUrl}
-              accentColor={featured.accentColor}
-              features={featured.features}
-              ctaText={featured.ctaText}
-              affiliateUrl={featured.affiliateUrl}
+              kind={channelPromo.kind}
+              slug={channelPromo.slug}
+              name={channelPromo.name}
+              logoUrl={channelPromo.logoUrl}
+              logoLightUrl={channelPromo.logoLightUrl}
+              logoDarkUrl={channelPromo.logoDarkUrl}
+              accentColor={channelPromo.accentColor}
+              features={channelPromo.features}
+              ctaText={channelPromo.ctaText}
+              affiliateUrl={channelPromo.affiliateUrl}
             />
           </div>
         ) : null}

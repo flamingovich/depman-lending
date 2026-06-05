@@ -1,4 +1,5 @@
 import { PartnerForm } from "@/components/admin/PartnerForm";
+import { PARTNER_KINDS } from "@/lib/partner-kind";
 
 export default function NewPartnerPage() {
   return (
@@ -30,6 +31,7 @@ export default function NewPartnerPage() {
           bonus2Label: "Бонус за депозит",
           bonus2Value: "до 500 FS + 225%",
           cardLayout: "grid",
+          kind: PARTNER_KINDS.casino,
           ctaText: "Забрать бонусы",
           isFeatured: false,
           isActive: true,

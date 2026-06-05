@@ -56,6 +56,7 @@ model Partner {
   topSortOrder      Int      @default(0)
   bestSortOrder     Int      @default(0)
   ctaText     String   @default("Перейти")
+  kind        String   @default("casino")
   isFeatured  Boolean  @default(false)
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)

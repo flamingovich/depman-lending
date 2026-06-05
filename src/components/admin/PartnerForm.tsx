@@ -4,6 +4,7 @@ import { LogoUploadField } from "@/components/admin/LogoUploadField";
 import { PartnerCardPreview } from "@/components/admin/PartnerCardPreview";
 import { buildPartnerPayload } from "@/lib/partner-payload";
 import type { BonusInput, PartnerFormData } from "@/lib/partner-types";
+import { isChannelKind, PARTNER_KINDS } from "@/lib/partner-kind";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { parseFeatures, slugify } from "@/lib/utils";
@@ -25,6 +26,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
   const [error, setError] = useState<string | null>(null);
 
   const logoPrefix = slugify(form.slug || form.name || "partner");
+  const isChannel = isChannelKind(form.kind);
 
   const previewPartner = useMemo(
     () => ({
@@ -111,6 +113,30 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
     <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-6">
         <section className="admin-card grid gap-4 p-5 md:grid-cols-2">
+          <label className="block space-y-1 md:col-span-2">
+            <span className="text-sm font-semibold">Тип</span>
+            <select
+              value={form.kind ?? PARTNER_KINDS.casino}
+              onChange={(e) => {
+                const nextKind = e.target.value;
+                setForm((prev) => ({
+                  ...prev,
+                  kind: nextKind,
+                  isFeatured: isChannelKind(nextKind) ? prev.isFeatured : false,
+                  ctaText: isChannelKind(nextKind)
+                    ? prev.ctaText || "Смотреть"
+                    : prev.ctaText || "Забрать бонусы",
+                }));
+              }}
+              className="admin-input"
+            >
+              <option value={PARTNER_KINDS.casino}>Казино / партнёр</option>
+              <option value={PARTNER_KINDS.channel}>
+                Промо-канал (баннер сверху, не в каталоге)
+              </option>
+            </select>
+          </label>
+
           <label className="block space-y-1 md:col-span-2">
             <span className="text-sm font-semibold">Название *</span>
             <input
@@ -215,7 +241,8 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             />
           </label>
 
-          <div className="space-y-3 md:col-span-2">
+          {!isChannel ? (
+            <div className="space-y-3 md:col-span-2">
             <h3 className="text-sm font-extrabold text-white">
               Блок бонусов на карточке
             </h3>
@@ -289,7 +316,9 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               </label>
             </div>
           </div>
+          ) : null}
 
+          {!isChannel ? (
           <label className="block space-y-1">
             <span className="text-sm font-semibold">Тип карточки</span>
             <select
@@ -301,6 +330,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               <option value="compact">Компактная (список)</option>
             </select>
           </label>
+          ) : null}
 
           <label className="block space-y-1">
             <span className="text-sm font-semibold">Текст кнопки</span>
@@ -335,16 +365,20 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             />
           </label>
 
-          <label className="inline-flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={form.isFeatured}
-              onChange={(e) =>
-                setForm({ ...form, isFeatured: e.target.checked })
-              }
-            />
-            <span className="text-sm font-semibold">Главная карточка</span>
-          </label>
+          {isChannel ? (
+            <label className="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={form.isFeatured}
+                onChange={(e) =>
+                  setForm({ ...form, isFeatured: e.target.checked })
+                }
+              />
+              <span className="text-sm font-semibold">
+                Показывать промо-баннер на главной
+              </span>
+            </label>
+          ) : null}
 
           <label className="inline-flex items-center gap-2">
             <input
@@ -352,10 +386,13 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               checked={form.isActive}
               onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
             />
-            <span className="text-sm font-semibold">Показывать в каталоге</span>
+            <span className="text-sm font-semibold">
+              {isChannel ? "Активен" : "Показывать в каталоге"}
+            </span>
           </label>
         </section>
 
+        {!isChannel ? (
         <section className="admin-card p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-base font-extrabold">Бонусы</h2>
@@ -407,6 +444,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             ))}
           </div>
         </section>
+        ) : null}
 
         {error ? <p className="text-sm text-red-400">{error}</p> : null}
 

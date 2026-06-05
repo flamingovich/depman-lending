@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DeletePartnerButton } from "@/components/admin/DeletePartnerButton";
 import { HomeLayoutManager } from "@/components/admin/HomeLayoutManager";
 import { prisma } from "@/lib/db";
+import { isChannelKind } from "@/lib/partner-kind";
 
 export default async function AdminPartnersPage() {
   const partners = await prisma.partner.findMany({
@@ -38,6 +39,7 @@ export default async function AdminPartnersPage() {
           bestSortOrder: partner.bestSortOrder,
           isActive: partner.isActive,
           isFeatured: partner.isFeatured,
+          kind: partner.kind,
         }))}
       />
 
@@ -60,8 +62,10 @@ export default async function AdminPartnersPage() {
                   <p className="text-xs text-slate-400">/{partner.slug}</p>
                 </td>
                 <td className="px-4 py-3">
-                  {partner.isFeatured ? (
-                    <span className="text-xs text-slate-400">Featured</span>
+                  {isChannelKind(partner.kind) ? (
+                    <span className="rounded-md bg-red-500/15 px-2 py-0.5 text-xs font-semibold text-red-300">
+                      Промо-канал
+                    </span>
                   ) : (
                     <div className="flex flex-wrap gap-1">
                       <span className="rounded-md bg-white/8 px-2 py-0.5 text-xs font-semibold text-slate-300">
@@ -91,9 +95,14 @@ export default async function AdminPartnersPage() {
                         Скрыт
                       </span>
                     )}
-                    {partner.isFeatured ? (
+                    {isChannelKind(partner.kind) ? (
+                      <span className="rounded-md bg-red-500/15 px-2 py-0.5 text-xs font-semibold text-red-300">
+                        Канал
+                      </span>
+                    ) : null}
+                    {partner.isFeatured && isChannelKind(partner.kind) ? (
                       <span className="rounded-md bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700">
-                        Featured
+                        На главной
                       </span>
                     ) : null}
                   </div>

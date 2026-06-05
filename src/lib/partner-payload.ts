@@ -1,4 +1,5 @@
 import type { BonusInput, PartnerFormData } from "@/lib/partner-types";
+import { isChannelKind, normalizePartnerKind } from "@/lib/partner-kind";
 
 function optionalText(value?: string) {
   const trimmed = value?.trim();
@@ -20,6 +21,7 @@ export function buildPartnerPayload(
   return {
     name: form.name.trim(),
     slug: optionalText(form.slug),
+    kind: normalizePartnerKind(form.kind),
     description: optionalText(form.description),
     logoUrl: optionalText(form.logoUrl),
     logoLightUrl: optionalText(form.logoLightUrl),
@@ -36,7 +38,7 @@ export function buildPartnerPayload(
     bonus2Value: optionalText(form.bonus2Value),
     cardLayout: form.cardLayout === "compact" ? "compact" : "grid",
     ctaText: form.ctaText.trim() || "Перейти",
-    isFeatured: form.isFeatured,
+    isFeatured: isChannelKind(form.kind) ? form.isFeatured : false,
     isActive: form.isActive,
     sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0,
     bonuses: form.bonuses

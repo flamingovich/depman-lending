@@ -3,11 +3,13 @@
 import { Play } from "lucide-react";
 import { CheckItem } from "@/components/miniapp/CheckItem";
 import { PartnerLogo } from "@/components/miniapp/PartnerLogo";
+import { isChannelKind } from "@/lib/partner-kind";
 import { parseFeatures } from "@/lib/utils";
 
 const YOUTUBE_RED = "#FF0000";
 
 type FeaturedCardProps = {
+  kind: string;
   slug: string;
   name: string;
   logoUrl?: string | null;
@@ -20,6 +22,7 @@ type FeaturedCardProps = {
 };
 
 export function FeaturedCard({
+  kind,
   slug,
   name,
   logoUrl,
@@ -31,8 +34,8 @@ export function FeaturedCard({
   affiliateUrl,
 }: FeaturedCardProps) {
   const items = parseFeatures(features).slice(0, 3);
-  const isYouTube = slug === "youtube";
-  const brandColor = isYouTube ? YOUTUBE_RED : accentColor;
+  const isChannel = isChannelKind(kind);
+  const brandColor = isChannel ? accentColor || YOUTUBE_RED : accentColor;
   const hasLogo = logoUrl || logoLightUrl || logoDarkUrl;
 
   function openPartner() {
@@ -47,11 +50,11 @@ export function FeaturedCard({
 
   return (
     <div className="featured-card-shell">
-      <article className={`featured-card${isYouTube ? " featured-card--youtube" : ""}`}>
+      <article className={`featured-card${isChannel ? " featured-card--youtube" : ""}`}>
         <div
-          className={`featured-card-bg${isYouTube ? " featured-card-bg--channel" : ""}`}
+          className={`featured-card-bg${isChannel ? " featured-card-bg--channel" : ""}`}
         />
-        {isYouTube ? (
+        {isChannel ? (
           <div className="featured-card-glow-clip" aria-hidden>
             <div
               className="featured-card-glow featured-card-glow--person"
@@ -67,7 +70,7 @@ export function FeaturedCard({
 
         <div
           className="featured-card-body relative flex min-h-[168px] flex-col p-3.5"
-          style={isYouTube ? { color: "#ffffff" } : undefined}
+          style={isChannel ? { color: "#ffffff" } : undefined}
         >
         <div className="featured-card-main mb-2">
           <div className="mb-2 flex items-center gap-2">
@@ -86,9 +89,9 @@ export function FeaturedCard({
             ) : null}
             <p
               className={`text-xl font-black uppercase tracking-tight ${
-                isYouTube ? "featured-card-youtube-name" : ""
+                isChannel ? "featured-card-youtube-name" : ""
               }`}
-              style={isYouTube ? { color: "#ffffff" } : { color: brandColor }}
+              style={isChannel ? { color: "#ffffff" } : { color: brandColor }}
             >
               {name}
             </p>
@@ -96,7 +99,7 @@ export function FeaturedCard({
 
           <ul className="space-y-0.5">
             {items.map((item) => (
-              <CheckItem key={item} textOnDark={isYouTube}>
+              <CheckItem key={item} textOnDark={isChannel}>
                 {item}
               </CheckItem>
             ))}
@@ -108,12 +111,12 @@ export function FeaturedCard({
             type="button"
             onClick={openPartner}
             className={`relative z-10 flex w-full items-center justify-center gap-1.5 rounded-[var(--radius-md)] py-2.5 text-xs font-bold transition active:scale-[0.98] ${
-              isYouTube ? "text-white" : "text-[#131323]"
+              isChannel ? "text-white" : "text-[#131323]"
             }`}
             style={{ backgroundColor: brandColor }}
           >
             <Play
-              className={`h-3.5 w-3.5 ${isYouTube ? "fill-white text-white" : "fill-current"}`}
+              className={`h-3.5 w-3.5 ${isChannel ? "fill-white text-white" : "fill-current"}`}
             />
             {ctaText}
           </button>
@@ -121,7 +124,7 @@ export function FeaturedCard({
       </div>
     </article>
 
-      {isYouTube ? (
+      {isChannel ? (
         <div className="featured-card-person-anchor" aria-hidden>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/depman.png" alt="" className="featured-card-person" />

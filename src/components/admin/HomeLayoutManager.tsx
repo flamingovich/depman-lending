@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BEST_BLOCK_LIMIT, HOME_BLOCK_LABELS } from "@/lib/home-blocks";
+import { isChannelKind } from "@/lib/partner-kind";
 
 export type LayoutPartner = {
   id: string;
@@ -15,6 +16,7 @@ export type LayoutPartner = {
   bestSortOrder: number;
   isActive: boolean;
   isFeatured: boolean;
+  kind: string;
 };
 
 type LayoutState = {
@@ -29,7 +31,7 @@ type HomeLayoutManagerProps = {
 
 function buildLayoutState(partners: LayoutPartner[]): LayoutState {
   const regular = partners
-    .filter((p) => !p.isFeatured)
+    .filter((p) => !isChannelKind(p.kind))
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
   return {

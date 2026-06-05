@@ -38,6 +38,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     topSortOrder: p.topSortOrder,
     bestSortOrder: p.bestSortOrder,
     sortOrder: p.sortOrder,
+    kind: p.kind,
     ctaText: p.ctaText,
     isFeatured: p.isFeatured,
     bonuses: p.bonuses.map((b) => ({ title: b.title, value: b.value })),

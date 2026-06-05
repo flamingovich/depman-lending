@@ -23,6 +23,7 @@ export type PartnerFormData = {
   bonus2Label?: string;
   bonus2Value?: string;
   cardLayout: string;
+  kind: string;
   ctaText: string;
   isFeatured: boolean;
   isActive: boolean;
