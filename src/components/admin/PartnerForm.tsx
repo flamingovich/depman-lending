@@ -146,14 +146,14 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
   return (
     <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
       <div className="space-y-6">
-        <section className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 md:grid-cols-2">
+        <section className="admin-card grid gap-4 p-5 md:grid-cols-2">
           <label className="block space-y-1 md:col-span-2">
             <span className="text-sm font-semibold">Название *</span>
             <input
               required
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
             />
           </label>
 
@@ -162,7 +162,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             <input
               value={form.slug ?? ""}
               onChange={(e) => setForm({ ...form, slug: e.target.value })}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
               placeholder="auto-from-name"
             />
           </label>
@@ -172,7 +172,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             <input
               value={form.badge ?? ""}
               onChange={(e) => setForm({ ...form, badge: e.target.value })}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
               placeholder="HOT, NEW..."
             />
           </label>
@@ -183,7 +183,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               value={form.description ?? ""}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={3}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
             />
           </label>
 
@@ -224,7 +224,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               onChange={(e) =>
                 setForm({ ...form, rating: Number(e.target.value) })
               }
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
             />
           </label>
 
@@ -236,7 +236,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               onChange={(e) =>
                 setForm({ ...form, accentColor: e.target.value })
               }
-              className="h-11 w-full rounded-xl border border-slate-200 px-2 py-1"
+              className="h-11 w-full rounded-xl border border-white/12 bg-[#162236] px-2 py-1"
             />
           </label>
 
@@ -247,21 +247,21 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               onChange={(e) =>
                 setForm({ ...form, affiliateUrl: e.target.value })
               }
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
             />
           </label>
 
           <div className="space-y-3 md:col-span-2">
-            <h3 className="text-sm font-extrabold text-slate-900">
+            <h3 className="text-sm font-extrabold text-white">
               Блок бонусов на карточке
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-400">
               Два настраиваемых бонуса и промокод последней строкой.
             </p>
 
-            <div className="grid gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4 md:grid-cols-2">
+            <div className="admin-card-muted grid gap-3 p-4 md:grid-cols-2">
               <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-600">
+                <span className="text-xs font-semibold text-slate-400">
                   Бонус 1 — подпись
                 </span>
                 <input
@@ -269,12 +269,12 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
                   onChange={(e) =>
                     setForm({ ...form, bonus1Label: e.target.value })
                   }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  className="admin-input text-sm"
                   placeholder="Бонус за регистрацию"
                 />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-600">
+                <span className="text-xs font-semibold text-slate-400">
                   Бонус 1 — значение
                 </span>
                 <input
@@ -282,12 +282,12 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
                   onChange={(e) =>
                     setForm({ ...form, bonus1Value: e.target.value })
                   }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  className="admin-input text-sm"
                   placeholder="100 FS"
                 />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-600">
+                <span className="text-xs font-semibold text-slate-400">
                   Бонус 2 — подпись
                 </span>
                 <input
@@ -295,12 +295,12 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
                   onChange={(e) =>
                     setForm({ ...form, bonus2Label: e.target.value })
                   }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  className="admin-input text-sm"
                   placeholder="Бонус за депозит"
                 />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold text-slate-600">
+                <span className="text-xs font-semibold text-slate-400">
                   Бонус 2 — значение
                 </span>
                 <input
@@ -308,18 +308,18 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
                   onChange={(e) =>
                     setForm({ ...form, bonus2Value: e.target.value })
                   }
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  className="admin-input text-sm"
                   placeholder="до 500 FS + 225%"
                 />
               </label>
               <label className="block space-y-1 md:col-span-2">
-                <span className="text-xs font-semibold text-slate-600">
+                <span className="text-xs font-semibold text-slate-400">
                   Промокод
                 </span>
                 <input
                   value={form.promoCode ?? ""}
                   onChange={(e) => setForm({ ...form, promoCode: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  className="admin-input text-sm"
                   placeholder="DEPMAN"
                 />
               </label>
@@ -331,7 +331,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             <select
               value={form.cardLayout}
               onChange={(e) => setForm({ ...form, cardLayout: e.target.value })}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
             >
               <option value="grid">Крупная (каталог)</option>
               <option value="compact">Компактная (список)</option>
@@ -343,7 +343,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             <input
               value={form.ctaText}
               onChange={(e) => setForm({ ...form, ctaText: e.target.value })}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
             />
           </label>
 
@@ -355,7 +355,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               onChange={(e) =>
                 setForm({ ...form, sortOrder: Number(e.target.value) })
               }
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
             />
           </label>
 
@@ -367,7 +367,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               value={featuresText}
               onChange={(e) => setFeaturesText(e.target.value)}
               rows={4}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
             />
           </label>
 
@@ -392,13 +392,13 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
           </label>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-5">
+        <section className="admin-card p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-base font-extrabold">Бонусы</h2>
             <button
               type="button"
               onClick={addBonus}
-              className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-semibold"
+              className="rounded-xl bg-white/8 px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/12"
             >
               + Добавить бонус
             </button>
@@ -408,19 +408,19 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             {form.bonuses.map((bonus, index) => (
               <div
                 key={index}
-                className="grid gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4 md:grid-cols-3"
+                className="admin-card-muted grid gap-3 p-4 md:grid-cols-3"
               >
                 <input
                   placeholder="Стартовый Пакет"
                   value={bonus.title}
                   onChange={(e) => updateBonus(index, { title: e.target.value })}
-                  className="rounded-xl border border-slate-200 px-3 py-2 md:col-span-1"
+                  className="admin-input md:col-span-1"
                 />
                 <input
                   placeholder="до 600 FS + 225%"
                   value={bonus.value ?? ""}
                   onChange={(e) => updateBonus(index, { value: e.target.value })}
-                  className="rounded-xl border border-slate-200 px-3 py-2"
+                  className="admin-input"
                 />
                 <div className="flex gap-2 md:col-span-1">
                   <input
@@ -429,12 +429,12 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
                     onChange={(e) =>
                       updateBonus(index, { description: e.target.value })
                     }
-                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2"
+                    className="admin-input flex-1"
                   />
                   <button
                     type="button"
                     onClick={() => removeBonus(index)}
-                    className="rounded-xl border border-red-200 px-3 text-sm text-red-600"
+                    className="rounded-xl border border-red-500/30 px-3 text-sm text-red-400"
                   >
                     ✕
                   </button>
@@ -444,7 +444,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
           </div>
         </section>
 
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
         <div className="flex gap-3">
           <button

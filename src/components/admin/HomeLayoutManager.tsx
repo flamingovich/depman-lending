@@ -187,20 +187,20 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
             draggable={options.draggable !== false}
             onDragStart={() => setDraggingId(partner.id)}
             onDragEnd={() => setDraggingId(null)}
-            className={`flex items-center gap-2 rounded-lg border bg-white px-2.5 py-2 ${
+            className={`flex items-center gap-2 rounded-lg border bg-[#162236] px-2.5 py-2 ${
               draggingId === partner.id
                 ? "border-violet-400 opacity-60"
-                : "border-slate-200"
+                : "border-white/10"
             } ${!partner.isActive ? "opacity-50" : ""}`}
           >
             {options.draggable !== false ? (
-              <span className="cursor-grab text-slate-300 active:cursor-grabbing">⋮⋮</span>
+              <span className="cursor-grab text-slate-500 active:cursor-grabbing">⋮⋮</span>
             ) : (
               <span className="w-3" />
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold">{partner.name}</p>
-              <p className="truncate text-xs text-slate-500">/{partner.slug}</p>
+              <p className="truncate text-xs text-slate-400">/{partner.slug}</p>
             </div>
             <div className="flex shrink-0 items-center gap-1">
               {options.removable ? (
@@ -209,7 +209,7 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
                   onClick={() =>
                     block === "top" ? removeFromTop(partner.id) : removeFromBest(partner.id)
                   }
-                  className="rounded border border-slate-200 px-1.5 text-xs text-slate-500"
+                  className="rounded border border-white/10 px-1.5 text-xs text-slate-400"
                   aria-label="Убрать из блока"
                 >
                   ×
@@ -219,7 +219,7 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
                 type="button"
                 onClick={() => moveWithin(block, partner.id, -1)}
                 disabled={index === 0}
-                className="rounded border border-slate-200 px-1.5 text-xs disabled:opacity-30"
+                className="rounded border border-white/10 px-1.5 text-xs disabled:opacity-30"
                 aria-label="Выше"
               >
                 ↑
@@ -228,7 +228,7 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
                 type="button"
                 onClick={() => moveWithin(block, partner.id, 1)}
                 disabled={index === list.length - 1}
-                className="rounded border border-slate-200 px-1.5 text-xs disabled:opacity-30"
+                className="rounded border border-white/10 px-1.5 text-xs disabled:opacity-30"
                 aria-label="Ниже"
               >
                 ↓
@@ -241,11 +241,11 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="admin-card space-y-4 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-extrabold tracking-tight">Раскладка на главной</h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             Все проекты всегда в общем списке. В «Сверху» и «Лучшие» — добавляйте
             перетаскиванием, не убирая из общего.
           </p>
@@ -261,21 +261,21 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
       </div>
 
       {error ? (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>
       ) : null}
       {saved ? (
-        <p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">
+        <p className="rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
           Раскладка сохранена
         </p>
       ) : null}
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <section className="min-h-[180px] rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3">
+        <section className="min-h-[180px] rounded-xl border border-dashed border-white/10 bg-white/[0.03] p-3">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-bold text-slate-800">
+            <h3 className="text-sm font-bold text-slate-100">
               {HOME_BLOCK_LABELS.all}
             </h3>
-            <span className="text-xs text-slate-500">всегда все</span>
+            <span className="text-xs text-slate-400">всегда все</span>
           </div>
           {renderList("all", state.all, { removable: false, draggable: true })}
         </section>
@@ -283,13 +283,13 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
         <section
           onDragOver={(e) => e.preventDefault()}
           onDrop={() => onDropTarget("top")}
-          className="min-h-[180px] rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3"
+          className="min-h-[180px] rounded-xl border border-dashed border-white/10 bg-white/[0.03] p-3"
         >
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-bold text-slate-800">
+            <h3 className="text-sm font-bold text-slate-100">
               {HOME_BLOCK_LABELS.top}
             </h3>
-            <span className="text-xs text-slate-500">карусель</span>
+            <span className="text-xs text-slate-400">карусель</span>
           </div>
           {renderList("top", state.top, { removable: true })}
           {state.top.length === 0 ? (
@@ -302,13 +302,13 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
         <section
           onDragOver={(e) => e.preventDefault()}
           onDrop={() => onDropTarget("best")}
-          className="min-h-[180px] rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3"
+          className="min-h-[180px] rounded-xl border border-dashed border-white/10 bg-white/[0.03] p-3"
         >
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h3 className="text-sm font-bold text-slate-800">
+            <h3 className="text-sm font-bold text-slate-100">
               {HOME_BLOCK_LABELS.best}
             </h3>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-400">
               {state.best.length}/{BEST_BLOCK_LIMIT}
             </span>
           </div>

@@ -21,16 +21,16 @@ export function AdminNav() {
   }
 
   return (
-    <aside className="w-full border-b border-slate-200 bg-white lg:w-64 lg:min-h-screen lg:border-b-0 lg:border-r">
+    <aside className="w-full border-b border-white/10 bg-[#0e1a2d] lg:w-64 lg:min-h-screen lg:border-b-0 lg:border-r">
       <div className="flex items-center justify-between px-5 py-4 lg:block">
         <div>
           <p className="text-lg font-extrabold tracking-tight">DepMan Admin</p>
-          <p className="text-xs text-slate-500">Управление партнёрами</p>
+          <p className="text-xs text-slate-400">Управление партнёрами</p>
         </div>
         <button
           type="button"
           onClick={logout}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 lg:mt-4"
+          className="admin-btn-secondary inline-flex items-center gap-2 px-3 py-2 lg:mt-4"
         >
           <LogOut className="h-4 w-4" />
           Выйти
@@ -50,7 +50,7 @@ export function AdminNav() {
               className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold whitespace-nowrap ${
                 active
                   ? "bg-violet-600 text-white"
-                  : "bg-slate-100 text-slate-700 lg:bg-transparent"
+                  : "bg-white/5 text-slate-300 lg:bg-transparent lg:text-slate-400 lg:hover:bg-white/5 lg:hover:text-white"
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -61,7 +61,7 @@ export function AdminNav() {
         <Link
           href="/"
           target="_blank"
-          className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 lg:mt-2"
+          className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-400 lg:mt-2 lg:hover:text-white"
         >
           Открыть Mini App →
         </Link>

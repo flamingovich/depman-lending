@@ -12,7 +12,7 @@ export default async function AdminDashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight">Обзор</h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-400">
           Управляйте каталогом партнёрских проектов для Telegram Mini App
         </p>
       </div>
@@ -33,7 +33,7 @@ export default async function AdminDashboardPage() {
         <Link
           href="/"
           target="_blank"
-          className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold"
+          className="admin-btn-secondary px-4 py-3"
         >
           Открыть Mini App
         </Link>
@@ -44,8 +44,8 @@ export default async function AdminDashboardPage() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5">
-      <p className="text-sm text-slate-500">{label}</p>
+    <div className="admin-card p-5">
+      <p className="text-sm text-slate-400">{label}</p>
       <p className="mt-2 text-3xl font-extrabold">{value}</p>
     </div>
   );

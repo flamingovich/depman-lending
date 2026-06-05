@@ -49,7 +49,7 @@ export function SettingsForm({ initial }: { initial: Settings }) {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-4">
-      <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5">
+      <div className="admin-card grid gap-4 p-5">
         {fields.map(({ key, label }) => (
           <label key={key} className="block space-y-1">
             <span className="text-sm font-semibold">{label}</span>
@@ -58,7 +58,7 @@ export function SettingsForm({ initial }: { initial: Settings }) {
               onChange={(e) =>
                 setForm({ ...form, [key]: e.target.value || null })
               }
-              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              className="admin-input"
             />
           </label>
         ))}
@@ -77,13 +77,13 @@ export function SettingsForm({ initial }: { initial: Settings }) {
                 bottomBarRating: Number(e.target.value),
               })
             }
-            className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            className="admin-input"
           />
         </label>
       </div>
 
       {message ? (
-        <p className={`text-sm ${message === "Сохранено" ? "text-green-600" : "text-red-600"}`}>
+        <p className={`text-sm ${message === "Сохранено" ? "text-emerald-400" : "text-red-400"}`}>
           {message}
         </p>
       ) : null}

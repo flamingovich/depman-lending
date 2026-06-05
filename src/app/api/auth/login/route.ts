@@ -4,7 +4,10 @@ import { createSession, verifyPassword } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 const schema = z.object({
-  email: z.string().email(),
+  email: z
+    .string()
+    .trim()
+    .refine((value) => /^[^\s@]+@[^\s@]+$/.test(value), "Invalid email"),
   password: z.string().min(4),
 });
 

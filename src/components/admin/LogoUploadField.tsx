@@ -66,13 +66,11 @@ export function LogoUploadField({
   return (
     <div className="space-y-2 md:col-span-2">
       <span className="text-sm font-semibold">{label}</span>
-      {hint ? <p className="text-xs text-slate-500">{hint}</p> : null}
+      {hint ? <p className="text-xs text-slate-400">{hint}</p> : null}
 
       <div className="flex flex-wrap items-start gap-4">
         <div className="space-y-1.5">
-          <span
-            className="text-[10px] font-semibold uppercase tracking-wide text-slate-500"
-          >
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
             {preview.label}
           </span>
           <div
@@ -121,25 +119,25 @@ export function LogoUploadField({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="w-fit rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold shadow-sm transition hover:bg-slate-50 disabled:opacity-60"
+            className="admin-btn-secondary w-fit px-4 py-2 disabled:opacity-60"
           >
             {uploading ? "Загрузка..." : value ? "Заменить файл" : "Выбрать файл"}
           </button>
 
-          <p className="text-xs text-slate-500">Рекомендуемый размер: 500×250 px, PNG без фона</p>
+          <p className="text-xs text-slate-400">Рекомендуемый размер: 500×250 px, PNG без фона</p>
 
           {value ? (
             <button
               type="button"
               onClick={() => onChange("")}
-              className="w-fit text-xs font-medium text-red-600"
+              className="w-fit text-xs font-medium text-red-400"
             >
               Удалить
             </button>
           ) : null}
 
           {uploadError ? (
-            <p className="text-xs text-red-600">{uploadError}</p>
+            <p className="text-xs text-red-400">{uploadError}</p>
           ) : null}
         </div>
       </div>

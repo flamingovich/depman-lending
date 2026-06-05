@@ -8,7 +8,7 @@ export default async function AdminSettingsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight">Настройки сайта</h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-400">
           Тексты и элементы интерфейса Mini App
         </p>
       </div>

@@ -21,7 +21,7 @@ export default async function EditPartnerPage({ params }: PageProps) {
         <h1 className="text-2xl font-extrabold tracking-tight">
           Редактировать: {partner.name}
         </h1>
-        <p className="text-sm text-slate-500">Обновите данные проекта и бонусы</p>
+        <p className="text-sm text-slate-400">Обновите данные проекта и бонусы</p>
       </div>
 
       <PartnerForm

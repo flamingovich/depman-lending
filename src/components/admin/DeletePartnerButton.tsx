@@ -26,7 +26,7 @@ export function DeletePartnerButton({
       type="button"
       onClick={handleDelete}
       disabled={loading}
-      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 disabled:opacity-60"
+      className="rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-semibold text-red-400 disabled:opacity-60"
     >
       {loading ? "..." : "Удалить"}
     </button>

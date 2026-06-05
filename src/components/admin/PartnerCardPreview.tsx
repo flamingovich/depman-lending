@@ -26,17 +26,17 @@ export function PartnerCardPreview({ partner }: PartnerCardPreviewProps) {
   const previewPartner = { ...partner, features: featuresJson };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="admin-card p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-extrabold text-slate-900">Предпросмотр</h2>
-        <div className="flex rounded-lg border border-slate-200 p-0.5 text-xs font-semibold">
+        <h2 className="text-sm font-extrabold">Предпросмотр</h2>
+        <div className="flex rounded-lg border border-white/10 bg-white/5 p-0.5 text-xs font-semibold">
           <button
             type="button"
             onClick={() => setTheme("dark")}
             className={`rounded-md px-2.5 py-1 ${
               theme === "dark"
-                ? "bg-slate-900 text-white"
-                : "text-slate-500 hover:text-slate-700"
+                ? "bg-violet-600 text-white"
+                : "text-slate-400 hover:text-white"
             }`}
           >
             Тёмная
@@ -46,8 +46,8 @@ export function PartnerCardPreview({ partner }: PartnerCardPreviewProps) {
             onClick={() => setTheme("light")}
             className={`rounded-md px-2.5 py-1 ${
               theme === "light"
-                ? "bg-slate-900 text-white"
-                : "text-slate-500 hover:text-slate-700"
+                ? "bg-violet-600 text-white"
+                : "text-slate-400 hover:text-white"
             }`}
           >
             Светлая
@@ -57,7 +57,7 @@ export function PartnerCardPreview({ partner }: PartnerCardPreviewProps) {
 
       <div
         data-theme={theme}
-        className="tma-shell tma-shell--static overflow-hidden rounded-xl border border-slate-200 bg-[var(--bg)] py-2"
+        className="tma-shell tma-shell--static overflow-hidden rounded-xl border border-white/10 bg-[var(--bg)] py-2"
       >
         {partner.cardLayout === "compact" ? (
           <div className="px-3">

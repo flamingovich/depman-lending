@@ -899,3 +899,59 @@ body {
   font-weight: 500;
   color: var(--muted);
 }
+
+/* Admin panel — dark only */
+html[data-app="admin"] {
+  color-scheme: dark;
+}
+
+html[data-app="admin"] body {
+  background: #050e1c;
+  color: #ffffff;
+}
+
+html[data-app="admin"] .admin-input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #162236;
+  padding: 0.625rem 0.75rem;
+  color: #ffffff;
+}
+
+html[data-app="admin"] .admin-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+html[data-app="admin"] .admin-card {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0e1a2d;
+}
+
+html[data-app="admin"] .admin-card-muted {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+html[data-app="admin"] .admin-table-head {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.55);
+}
+
+html[data-app="admin"] .admin-btn-secondary {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  transition: background-color 0.15s ease;
+}
+
+html[data-app="admin"] .admin-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
