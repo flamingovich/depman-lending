@@ -2,6 +2,7 @@
 
 import { LogoUploadField } from "@/components/admin/LogoUploadField";
 import { PartnerCardPreview } from "@/components/admin/PartnerCardPreview";
+import { ShortLinkField } from "@/components/admin/ShortLinkField";
 import { buildPartnerPayload } from "@/lib/partner-payload";
 import type { BonusInput, PartnerFormData } from "@/lib/partner-types";
 import { isChannelKind, PARTNER_KINDS } from "@/lib/partner-kind";
@@ -153,8 +154,11 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               value={form.slug ?? ""}
               onChange={(e) => setForm({ ...form, slug: e.target.value })}
               className="admin-input"
-              placeholder="auto-from-name"
+              placeholder="beef"
             />
+            <span className="text-xs text-slate-400">
+              Страница: /partner/beef · короткая ссылка: depman.vip/beef
+            </span>
           </label>
 
           <label className="block space-y-1">
@@ -238,8 +242,11 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
                 setForm({ ...form, affiliateUrl: e.target.value })
               }
               className="admin-input"
+              placeholder="https://beefway66.com/c22082169"
             />
           </label>
+
+          <ShortLinkField slug={form.slug ?? ""} />
 
           {!isChannel ? (
             <div className="space-y-3 md:col-span-2">
