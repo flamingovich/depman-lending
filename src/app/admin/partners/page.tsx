@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CopyShortLinkButton } from "@/components/admin/CopyShortLinkButton";
 import { DeletePartnerButton } from "@/components/admin/DeletePartnerButton";
 import { HomeLayoutManager } from "@/components/admin/HomeLayoutManager";
 import { prisma } from "@/lib/db";
@@ -109,13 +110,16 @@ export default async function AdminPartnersPage() {
                 </td>
                 <td className="px-4 py-3">{partner._count.bonuses}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Link
                       href={`/admin/partners/${partner.id}`}
                       className="admin-btn-secondary px-3 py-1.5 text-xs"
                     >
                       Редактировать
                     </Link>
+                    {partner.affiliateUrl ? (
+                      <CopyShortLinkButton slug={partner.slug} compact />
+                    ) : null}
                     <DeletePartnerButton id={partner.id} name={partner.name} />
                   </div>
                 </td>
