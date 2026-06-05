@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SiteSettings {
+  id                String  @id @default("default")
+  siteName          String  @default("DepMan")
+  siteTagline       String  @default("Партнёрские проекты")
+  heroTitle         String  @default("⭐ Рейтинг лучших партнёров")
+  searchPlaceholder String  @default("Поиск проекта")
+  promoBannerText   String  @default("Войди и забери эксклюзивные бонусы")
+  promoButtonText   String  @default("Войти")
+  bottomBarTitle    String  @default("Справочник партнёра")
+  bottomBarRating   Float   @default(5.0)
+  bottomBarCtaText  String  @default("Открыть")
+  telegramBotUrl    String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Partner {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  logoUrl     String?
+  logoLightUrl String?
+  logoDarkUrl  String?
+  bannerUrl   String?
+  badge       String?
+  rating      Float    @default(5.0)
+  accentColor String   @default("#b8ff3c")
+  features    String   @default("[]")
+  affiliateUrl String?
+  promoCode   String?
+  bonus1Label String?
+  bonus1Value String?
+  bonus2Label String?
+  bonus2Value String?
+  cardLayout        String   @default("grid")
+  inTopStrip        Boolean  @default(false)
+  inBestBlock       Boolean  @default(false)
+  topSortOrder      Int      @default(0)
+  bestSortOrder     Int      @default(0)
+  ctaText     String   @default("Перейти")
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  bonuses     Bonus[]
+  reviews     Review[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  partnerId  String
+  partner    Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  authorName String   @default("Гость")
+  rating     Int
+  text       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Bonus {
+  id          String   @id @default(cuid())
+  partnerId   String
+  partner     Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  value       String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

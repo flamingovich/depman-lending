@@ -1,0 +1,465 @@
+"use client";
+
+import { LogoUploadField } from "@/components/admin/LogoUploadField";
+import { PartnerCardPreview } from "@/components/admin/PartnerCardPreview";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { parseFeatures, slugify } from "@/lib/utils";
+
+export type BonusInput = {
+  title: string;
+  description?: string;
+  value?: string;
+};
+
+export type PartnerFormData = {
+  id?: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  logoUrl?: string;
+  logoLightUrl?: string;
+  logoDarkUrl?: string;
+  badge?: string;
+  rating: number;
+  accentColor: string;
+  features: string;
+  affiliateUrl?: string;
+  promoCode?: string;
+  bonus1Label?: string;
+  bonus1Value?: string;
+  bonus2Label?: string;
+  bonus2Value?: string;
+  cardLayout: string;
+  ctaText: string;
+  isFeatured: boolean;
+  isActive: boolean;
+  sortOrder: number;
+  bonuses: BonusInput[];
+};
+
+type PartnerFormProps = {
+  initial: PartnerFormData;
+  mode: "create" | "edit";
+};
+
+export function PartnerForm({ initial, mode }: PartnerFormProps) {
+  const router = useRouter();
+  const [form, setForm] = useState(initial);
+  const [featuresText, setFeaturesText] = useState(
+    parseFeatures(initial.features).join("\n"),
+  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const logoPrefix = slugify(form.slug || form.name || "partner");
+
+  const previewPartner = useMemo(
+    () => ({
+      id: form.id ?? "preview",
+      slug: form.slug?.trim() || slugify(form.name || "preview"),
+      name: form.name || "Название проекта",
+      logoUrl: form.logoUrl || null,
+      logoLightUrl: form.logoLightUrl || null,
+      logoDarkUrl: form.logoDarkUrl || null,
+      accentColor: form.accentColor,
+      rating: form.rating,
+      features: JSON.stringify(
+        featuresText
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean),
+      ),
+      promoCode: form.promoCode || null,
+      bonus1Label: form.bonus1Label || null,
+      bonus1Value: form.bonus1Value || null,
+      bonus2Label: form.bonus2Label || null,
+      bonus2Value: form.bonus2Value || null,
+      ctaText: form.ctaText || "Забрать бонусы",
+      affiliateUrl: form.affiliateUrl || null,
+      cardLayout: form.cardLayout,
+      bonusValue: form.bonuses[0]?.value || form.bonuses[0]?.title || null,
+    }),
+    [form, featuresText],
+  );
+
+  function updateBonus(index: number, patch: Partial<BonusInput>) {
+    setForm((prev) => ({
+      ...prev,
+      bonuses: prev.bonuses.map((bonus, i) =>
+        i === index ? { ...bonus, ...patch } : bonus,
+      ),
+    }));
+  }
+
+  function addBonus() {
+    setForm((prev) => ({
+      ...prev,
+      bonuses: [...prev.bonuses, { title: "", value: "", description: "" }],
+    }));
+  }
+
+  function removeBonus(index: number) {
+    setForm((prev) => ({
+      ...prev,
+      bonuses: prev.bonuses.filter((_, i) => i !== index),
+    }));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const features = featuresText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const payload = {
+      ...form,
+      features,
+      bonuses: form.bonuses.filter((b) => b.title.trim()),
+    };
+
+    const url =
+      mode === "create" ? "/api/partners" : `/api/partners/${form.id}`;
+    const method = mode === "create" ? "POST" : "PATCH";
+
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    setLoading(false);
+
+    if (!res.ok) {
+      setError("Не удалось сохранить. Проверьте данные.");
+      return;
+    }
+
+    router.push("/admin/partners");
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="space-y-6">
+        <section className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 md:grid-cols-2">
+          <label className="block space-y-1 md:col-span-2">
+            <span className="text-sm font-semibold">Название *</span>
+            <input
+              required
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+          <label className="block space-y-1">
+            <span className="text-sm font-semibold">Slug (URL)</span>
+            <input
+              value={form.slug ?? ""}
+              onChange={(e) => setForm({ ...form, slug: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              placeholder="auto-from-name"
+            />
+          </label>
+
+          <label className="block space-y-1">
+            <span className="text-sm font-semibold">Бейдж</span>
+            <input
+              value={form.badge ?? ""}
+              onChange={(e) => setForm({ ...form, badge: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+              placeholder="HOT, NEW..."
+            />
+          </label>
+
+          <label className="block space-y-1 md:col-span-2">
+            <span className="text-sm font-semibold">Описание</span>
+            <textarea
+              value={form.description ?? ""}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              rows={3}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+          <LogoUploadField
+            label="Логотип для светлой темы (PNG, тёмный, без фона)"
+            hint="Прозрачный PNG для светлой темы приложения."
+            value={form.logoLightUrl ?? ""}
+            onChange={(url) => setForm({ ...form, logoLightUrl: url })}
+            uploadPrefix={`${logoPrefix}-light`}
+            previewTheme="light"
+          />
+
+          <LogoUploadField
+            label="Логотип для тёмной темы (PNG, белый, без фона)"
+            hint="Прозрачный PNG для тёмной темы приложения."
+            value={form.logoDarkUrl ?? ""}
+            onChange={(url) => setForm({ ...form, logoDarkUrl: url })}
+            uploadPrefix={`${logoPrefix}-dark`}
+            previewTheme="dark"
+          />
+
+          <LogoUploadField
+            label="Логотип запасной (если не указаны варианты для тем)"
+            value={form.logoUrl ?? ""}
+            onChange={(url) => setForm({ ...form, logoUrl: url })}
+            uploadPrefix={`${logoPrefix}-fallback`}
+            previewTheme="light"
+          />
+
+          <label className="block space-y-1">
+            <span className="text-sm font-semibold">Рейтинг</span>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              max="5"
+              value={form.rating}
+              onChange={(e) =>
+                setForm({ ...form, rating: Number(e.target.value) })
+              }
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+          <label className="block space-y-1">
+            <span className="text-sm font-semibold">Цвет акцента</span>
+            <input
+              type="color"
+              value={form.accentColor}
+              onChange={(e) =>
+                setForm({ ...form, accentColor: e.target.value })
+              }
+              className="h-11 w-full rounded-xl border border-slate-200 px-2 py-1"
+            />
+          </label>
+
+          <label className="block space-y-1 md:col-span-2">
+            <span className="text-sm font-semibold">Партнёрская ссылка</span>
+            <input
+              value={form.affiliateUrl ?? ""}
+              onChange={(e) =>
+                setForm({ ...form, affiliateUrl: e.target.value })
+              }
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+          <div className="space-y-3 md:col-span-2">
+            <h3 className="text-sm font-extrabold text-slate-900">
+              Блок бонусов на карточке
+            </h3>
+            <p className="text-xs text-slate-500">
+              Два настраиваемых бонуса и промокод последней строкой.
+            </p>
+
+            <div className="grid gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4 md:grid-cols-2">
+              <label className="block space-y-1">
+                <span className="text-xs font-semibold text-slate-600">
+                  Бонус 1 — подпись
+                </span>
+                <input
+                  value={form.bonus1Label ?? ""}
+                  onChange={(e) =>
+                    setForm({ ...form, bonus1Label: e.target.value })
+                  }
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="Бонус за регистрацию"
+                />
+              </label>
+              <label className="block space-y-1">
+                <span className="text-xs font-semibold text-slate-600">
+                  Бонус 1 — значение
+                </span>
+                <input
+                  value={form.bonus1Value ?? ""}
+                  onChange={(e) =>
+                    setForm({ ...form, bonus1Value: e.target.value })
+                  }
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="100 FS"
+                />
+              </label>
+              <label className="block space-y-1">
+                <span className="text-xs font-semibold text-slate-600">
+                  Бонус 2 — подпись
+                </span>
+                <input
+                  value={form.bonus2Label ?? ""}
+                  onChange={(e) =>
+                    setForm({ ...form, bonus2Label: e.target.value })
+                  }
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="Бонус за депозит"
+                />
+              </label>
+              <label className="block space-y-1">
+                <span className="text-xs font-semibold text-slate-600">
+                  Бонус 2 — значение
+                </span>
+                <input
+                  value={form.bonus2Value ?? ""}
+                  onChange={(e) =>
+                    setForm({ ...form, bonus2Value: e.target.value })
+                  }
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="до 500 FS + 225%"
+                />
+              </label>
+              <label className="block space-y-1 md:col-span-2">
+                <span className="text-xs font-semibold text-slate-600">
+                  Промокод
+                </span>
+                <input
+                  value={form.promoCode ?? ""}
+                  onChange={(e) => setForm({ ...form, promoCode: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="DEPMAN"
+                />
+              </label>
+            </div>
+          </div>
+
+          <label className="block space-y-1">
+            <span className="text-sm font-semibold">Тип карточки</span>
+            <select
+              value={form.cardLayout}
+              onChange={(e) => setForm({ ...form, cardLayout: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            >
+              <option value="grid">Крупная (каталог)</option>
+              <option value="compact">Компактная (список)</option>
+            </select>
+          </label>
+
+          <label className="block space-y-1">
+            <span className="text-sm font-semibold">Текст кнопки</span>
+            <input
+              value={form.ctaText}
+              onChange={(e) => setForm({ ...form, ctaText: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+          <label className="block space-y-1">
+            <span className="text-sm font-semibold">Порядок сортировки</span>
+            <input
+              type="number"
+              value={form.sortOrder}
+              onChange={(e) =>
+                setForm({ ...form, sortOrder: Number(e.target.value) })
+              }
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+          <label className="block space-y-1 md:col-span-2">
+            <span className="text-sm font-semibold">
+              Преимущества (по одному на строку)
+            </span>
+            <textarea
+              value={featuresText}
+              onChange={(e) => setFeaturesText(e.target.value)}
+              rows={4}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={form.isFeatured}
+              onChange={(e) =>
+                setForm({ ...form, isFeatured: e.target.checked })
+              }
+            />
+            <span className="text-sm font-semibold">Главная карточка</span>
+          </label>
+
+          <label className="inline-flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={form.isActive}
+              onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
+            />
+            <span className="text-sm font-semibold">Показывать в каталоге</span>
+          </label>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-base font-extrabold">Бонусы</h2>
+            <button
+              type="button"
+              onClick={addBonus}
+              className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-semibold"
+            >
+              + Добавить бонус
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {form.bonuses.map((bonus, index) => (
+              <div
+                key={index}
+                className="grid gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4 md:grid-cols-3"
+              >
+                <input
+                  placeholder="Стартовый Пакет"
+                  value={bonus.title}
+                  onChange={(e) => updateBonus(index, { title: e.target.value })}
+                  className="rounded-xl border border-slate-200 px-3 py-2 md:col-span-1"
+                />
+                <input
+                  placeholder="до 600 FS + 225%"
+                  value={bonus.value ?? ""}
+                  onChange={(e) => updateBonus(index, { value: e.target.value })}
+                  className="rounded-xl border border-slate-200 px-3 py-2"
+                />
+                <div className="flex gap-2 md:col-span-1">
+                  <input
+                    placeholder="Описание"
+                    value={bonus.description ?? ""}
+                    onChange={(e) =>
+                      updateBonus(index, { description: e.target.value })
+                    }
+                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeBonus(index)}
+                    className="rounded-xl border border-red-200 px-3 text-sm text-red-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="rounded-xl bg-violet-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-60"
+          >
+            {loading ? "Сохранение..." : "Сохранить"}
+          </button>
+        </div>
+      </div>
+
+      <aside className="xl:sticky xl:top-4 xl:self-start">
+        <PartnerCardPreview partner={previewPartner} />
+      </aside>
+    </form>
+  );
+}

@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DepMan — Telegram Mini App каталог партнёров
 
-## Getting Started
+Мобильный лендинг в стиле [kolxozapp.com](https://kolxozapp.com/) для партнёрских проектов с бонусами и встроенной админ-панелью.
 
-First, run the development server:
+## Стек
+
+- **Next.js 16** — фронт и API
+- **Prisma 7 + SQLite** — база (легко перенести на Postgres)
+- **Tailwind CSS 4** — UI
+- **Telegram Web App SDK** — интеграция Mini App
+
+## Быстрый старт
 
 ```bash
+npm install
+cp .env.example .env
+npm run db:migrate
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Mini App: http://localhost:3000
+- Админка: http://localhost:3000/admin
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Доступ в админку (после seed)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Email: `admin@depman.local`
+- Пароль: `admin123`
 
-## Learn More
+Смените `ADMIN_EMAIL`, `ADMIN_PASSWORD` и `ADMIN_JWT_SECRET` в `.env` перед продакшеном.
 
-To learn more about Next.js, take a look at the following resources:
+## Админ-панель
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Собственная панель на `/admin` (вдохновлена open-source CMS вроде [Payload](https://github.com/payloadcms/payload), но заточена под ваш кейс):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Проекты** — название, slug, бонусы, промокод, партнёрская ссылка, featured-карточка
+- **Настройки** — тексты шапки, поиска, нижней панели, ссылка на Telegram-бота
 
-## Deploy on Vercel
+## Telegram Mini App
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Создайте бота через [@BotFather](https://t.me/BotFather)
+2. В BotFather: `/newapp` → укажите URL вашего деплоя (например `https://your-domain.vercel.app`)
+3. В админке укажите ссылку на бота в «Ссылка на бота»
+4. Партнёрские ссылки открываются через `Telegram.WebApp.openLink()`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Деплой (Vercel)
+
+1. Подключите репозиторий к Vercel
+2. Добавьте переменные из `.env.example`
+3. Для продакшена лучше **Postgres** + `@prisma/adapter-pg` вместо SQLite
+4. Запустите `npm run db:seed` один раз (или через CI)
+
+## Структура
+
+```
+src/app/              — Mini App и страницы партнёров
+src/app/admin/        — админ-панель
+src/app/api/          — REST API для админки
+prisma/               — схема и seed
+```
+
+## Команды
+
+| Команда | Описание |
+|---------|----------|
+| `npm run dev` | Dev-сервер |
+| `npm run build` | Сборка |
+| `npm run db:seed` | Демо-данные |
+| `npm run db:studio` | Prisma Studio |
