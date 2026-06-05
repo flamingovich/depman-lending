@@ -14,10 +14,20 @@ export function DeletePartnerButton({
   const [loading, setLoading] = useState(false);
 
   async function handleDelete() {
-    if (!confirm(`Удалить проект «${name}»?`)) return;
+    if (
+      !confirm(
+        `Удалить «${name}» навсегда?\n\nПроект сразу пропадёт с сайта. Отменить это действие нельзя.`,
+      )
+    ) {
+      return;
+    }
     setLoading(true);
-    await fetch(`/api/partners/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/partners/${id}`, { method: "DELETE" });
     setLoading(false);
+    if (!res.ok) {
+      alert("Не удалось удалить проект. Попробуйте ещё раз.");
+      return;
+    }
     router.refresh();
   }
 
