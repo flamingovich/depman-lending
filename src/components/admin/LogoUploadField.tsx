@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRef, useState } from "react";
 
 type LogoUploadFieldProps = {
@@ -81,13 +80,11 @@ export function LogoUploadField({
             }}
           >
             {value ? (
-              <Image
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
                 src={value}
                 alt=""
-                width={152}
-                height={76}
                 className="max-h-[72px] max-w-full object-contain"
-                unoptimized
               />
             ) : (
               <span

@@ -12,6 +12,17 @@ const nextConfig: NextConfig = {
         hostname: "localhost",
       },
     ],
+    localPatterns: [
+      {
+        pathname: "/uploads/**",
+      },
+      {
+        pathname: "/logos/**",
+      },
+      {
+        pathname: "/images/**",
+      },
+    ],
   },
 };
 

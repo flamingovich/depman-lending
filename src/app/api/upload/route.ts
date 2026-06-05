@@ -4,7 +4,24 @@ import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
 
 const MAX_BYTES = 2 * 1024 * 1024;
-const ALLOWED_TYPES = new Set(["image/png", "image/webp"]);
+const ALLOWED_TYPES = new Set([
+  "image/png",
+  "image/x-png",
+  "image/webp",
+]);
+
+function fileExtension(file: File) {
+  const fromName = file.name.split(".").pop()?.toLowerCase();
+  if (fromName === "webp") return "webp";
+  if (fromName === "png") return "png";
+  if (file.type === "image/webp") return "webp";
+  return "png";
+}
+
+function isAllowedImage(file: File) {
+  if (ALLOWED_TYPES.has(file.type)) return true;
+  return /\.(png|webp)$/i.test(file.name);
+}
 
 function safePrefix(raw: string) {
   const cleaned = raw.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-|-$/g, "");
@@ -22,7 +39,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Файл не выбран" }, { status: 400 });
     }
 
-    if (!ALLOWED_TYPES.has(file.type)) {
+    if (!isAllowedImage(file)) {
       return NextResponse.json(
         { error: "Допустимы только PNG и WebP" },
         { status: 400 },
@@ -36,7 +53,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const ext = file.type === "image/webp" ? "webp" : "png";
+    const ext = fileExtension(file);
     const prefix = safePrefix(String(formData.get("prefix") ?? "logo"));
     const filename = `${prefix}-${Date.now()}.${ext}`;
     const uploadDir = path.join(process.cwd(), "public", "uploads", "logos");

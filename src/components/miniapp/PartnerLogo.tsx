@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useTheme } from "@/components/theme/ThemeProvider";
 
@@ -66,7 +65,8 @@ export function PartnerLogo({
     }
 
     return (
-      <Image
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
         src={themedLogo}
         alt=""
         width={width}
