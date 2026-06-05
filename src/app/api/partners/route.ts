@@ -8,6 +8,7 @@ import {
   normalizePartnerKind,
   PARTNER_KINDS,
 } from "@/lib/partner-kind";
+import { revalidateCatalogPages } from "@/lib/revalidate-catalog";
 import { slugify } from "@/lib/utils";
 
 const bonusSchema = z.object({
@@ -103,6 +104,8 @@ export async function POST(request: Request) {
         data: { isFeatured: false },
       });
     }
+
+    revalidateCatalogPages();
 
     return NextResponse.json(partner, { status: 201 });
   } catch (error) {

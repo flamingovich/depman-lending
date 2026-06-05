@@ -1,6 +1,8 @@
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminTheme } from "@/components/admin/AdminTheme";
 
+export const dynamic = "force-dynamic";
+
 export default function AdminLayout({
   children,
 }: {

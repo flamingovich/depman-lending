@@ -8,6 +8,7 @@ import {
   normalizePartnerKind,
   PARTNER_KINDS,
 } from "@/lib/partner-kind";
+import { revalidateCatalogPages } from "@/lib/revalidate-catalog";
 import { slugify } from "@/lib/utils";
 
 const bonusSchema = z.object({
@@ -130,6 +131,8 @@ export async function PATCH(request: Request, context: RouteContext) {
       include: { bonuses: { orderBy: { sortOrder: "asc" } } },
     });
 
+    revalidateCatalogPages();
+
     return NextResponse.json(updated);
   } catch (error) {
     return partnerApiErrorResponse(error);
@@ -141,6 +144,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
     await requireSession();
     const { id } = await context.params;
     await prisma.partner.delete({ where: { id } });
+    revalidateCatalogPages();
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

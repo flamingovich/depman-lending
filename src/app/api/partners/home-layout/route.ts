@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { BEST_BLOCK_LIMIT } from "@/lib/home-blocks";
+import { revalidateCatalogPages } from "@/lib/revalidate-catalog";
 
 const layoutSchema = z.object({
   items: z.array(
@@ -57,6 +58,8 @@ export async function PUT(request: Request) {
         }),
       ),
     );
+
+    revalidateCatalogPages();
 
     return NextResponse.json({ ok: true });
   } catch (error) {
