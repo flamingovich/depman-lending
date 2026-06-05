@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { partnerApiErrorResponse } from "@/lib/api-errors";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/utils";
@@ -91,9 +92,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(partner, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && error.message === "UNAUTHORIZED") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+    return partnerApiErrorResponse(error);
   }
 }

@@ -2,41 +2,13 @@
 
 import { LogoUploadField } from "@/components/admin/LogoUploadField";
 import { PartnerCardPreview } from "@/components/admin/PartnerCardPreview";
+import { buildPartnerPayload } from "@/lib/partner-payload";
+import type { BonusInput, PartnerFormData } from "@/lib/partner-types";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { parseFeatures, slugify } from "@/lib/utils";
 
-export type BonusInput = {
-  title: string;
-  description?: string;
-  value?: string;
-};
-
-export type PartnerFormData = {
-  id?: string;
-  name: string;
-  slug?: string;
-  description?: string;
-  logoUrl?: string;
-  logoLightUrl?: string;
-  logoDarkUrl?: string;
-  badge?: string;
-  rating: number;
-  accentColor: string;
-  features: string;
-  affiliateUrl?: string;
-  promoCode?: string;
-  bonus1Label?: string;
-  bonus1Value?: string;
-  bonus2Label?: string;
-  bonus2Value?: string;
-  cardLayout: string;
-  ctaText: string;
-  isFeatured: boolean;
-  isActive: boolean;
-  sortOrder: number;
-  bonuses: BonusInput[];
-};
+export type { BonusInput, PartnerFormData };
 
 type PartnerFormProps = {
   initial: PartnerFormData;
@@ -111,16 +83,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
     setLoading(true);
     setError(null);
 
-    const features = featuresText
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-
-    const payload = {
-      ...form,
-      features,
-      bonuses: form.bonuses.filter((b) => b.title.trim()),
-    };
+    const payload = buildPartnerPayload(form, featuresText);
 
     const url =
       mode === "create" ? "/api/partners" : `/api/partners/${form.id}`;
@@ -135,7 +98,8 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
     setLoading(false);
 
     if (!res.ok) {
-      setError("Не удалось сохранить. Проверьте данные.");
+      const data = (await res.json().catch(() => null)) as { error?: string } | null;
+      setError(data?.error ?? "Не удалось сохранить. Проверьте данные.");
       return;
     }
 

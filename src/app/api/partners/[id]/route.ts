@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { partnerApiErrorResponse } from "@/lib/api-errors";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/utils";
@@ -81,16 +82,18 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     if (bonuses) {
       await prisma.bonus.deleteMany({ where: { partnerId: id } });
-      await prisma.bonus.createMany({
-        data: bonuses.map((bonus, index) => ({
-          partnerId: id,
-          title: bonus.title,
-          description: bonus.description,
-          value: bonus.value,
-          sortOrder: bonus.sortOrder ?? index,
-          isActive: bonus.isActive ?? true,
-        })),
-      });
+      if (bonuses.length > 0) {
+        await prisma.bonus.createMany({
+          data: bonuses.map((bonus, index) => ({
+            partnerId: id,
+            title: bonus.title,
+            description: bonus.description,
+            value: bonus.value,
+            sortOrder: bonus.sortOrder ?? index,
+            isActive: bonus.isActive ?? true,
+          })),
+        });
+      }
     }
 
     if (body.isFeatured) {
@@ -107,10 +110,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     return NextResponse.json(updated);
   } catch (error) {
-    if (error instanceof Error && error.message === "UNAUTHORIZED") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+    return partnerApiErrorResponse(error);
   }
 }
 
