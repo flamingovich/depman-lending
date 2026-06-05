@@ -7,6 +7,7 @@ import { useTheme } from "@/components/theme/ThemeProvider";
 import { CheckItem } from "@/components/miniapp/CheckItem";
 import { PartnerLogo, usePartnerLogoSrc } from "@/components/miniapp/PartnerLogo";
 import { PaymentMethodsRow } from "@/components/miniapp/PaymentMethodsRow";
+import { MiniAppShell } from "@/components/miniapp/MiniAppShell";
 import { ReviewModal } from "@/components/miniapp/ReviewModal";
 import { buildPartnerStats } from "@/lib/partner-stats";
 
@@ -86,7 +87,7 @@ export function PartnerDetailShell({ partner }: PartnerDetailShellProps) {
 
   return (
     <>
-      <div className="tma-shell min-h-dvh pb-6">
+      <MiniAppShell className="min-h-dvh pb-6">
         <header className="partner-detail-header px-3 pt-[calc(8px+var(--safe-top))] pb-2">
           <Link href="/" className="partner-detail-back">
             <ArrowLeft className="h-4 w-4 shrink-0" strokeWidth={2.5} />
@@ -208,14 +209,14 @@ export function PartnerDetailShell({ partner }: PartnerDetailShellProps) {
             <p className="partner-detail-disclaimer">Переход по партнёрской ссылке</p>
           ) : null}
         </main>
-      </div>
 
-      <ReviewModal
-        open={reviewOpen}
-        partnerId={partner.id}
-        partnerName={partner.name}
-        onClose={() => setReviewOpen(false)}
-      />
+        <ReviewModal
+          open={reviewOpen}
+          partnerId={partner.id}
+          partnerName={partner.name}
+          onClose={() => setReviewOpen(false)}
+        />
+      </MiniAppShell>
     </>
   );
 }

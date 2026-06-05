@@ -1,6 +1,6 @@
 export function FooterInfo() {
   return (
-    <footer className="space-y-4 px-4 pb-4 pt-2 text-[var(--muted)]">
+    <footer className="space-y-4 pb-4 pt-2 text-[var(--muted)]">
       <section>
         <h3 className="mb-2 text-sm font-bold text-[var(--text)]">
           Предупреждение:

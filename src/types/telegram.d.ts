@@ -8,6 +8,9 @@ interface TelegramWebApp {
   setHeaderColor?: (color: string) => void;
   setBackgroundColor?: (color: string) => void;
   enableClosingConfirmation?: () => void;
+  viewportStableWidth?: number;
+  viewportStableHeight?: number;
+  viewportHeight?: number;
   onEvent?: (eventType: string, callback: () => void) => void;
   offEvent?: (eventType: string, callback: () => void) => void;
   MainButton: {

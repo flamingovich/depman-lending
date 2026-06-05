@@ -15,7 +15,7 @@ export function HeaderActions({
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="flex items-center gap-2 px-3 py-2">
+    <div className="tma-gutter-x flex items-center gap-2 py-2">
       <button
         type="button"
         onClick={onOpenSearch}

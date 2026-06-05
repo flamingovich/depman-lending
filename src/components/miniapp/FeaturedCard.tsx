@@ -46,38 +46,29 @@ export function FeaturedCard({
   }
 
   return (
-    <article className={`featured-card${isYouTube ? " featured-card--youtube" : ""}`}>
-      <div
-        className={`featured-card-bg${isYouTube ? " featured-card-bg--channel" : ""}`}
-      />
-      {isYouTube ? (
-        <>
+    <div className="featured-card-shell">
+      <article className={`featured-card${isYouTube ? " featured-card--youtube" : ""}`}>
+        <div
+          className={`featured-card-bg${isYouTube ? " featured-card-bg--channel" : ""}`}
+        />
+        {isYouTube ? (
           <div className="featured-card-glow-clip" aria-hidden>
             <div
               className="featured-card-glow featured-card-glow--person"
               style={{ backgroundColor: brandColor }}
             />
           </div>
-          <div className="featured-card-clip" aria-hidden>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/depman.png"
-              alt=""
-              className="featured-card-person"
-            />
-          </div>
-        </>
-      ) : (
-        <div
-          className="featured-card-glow featured-card-glow--default"
-          style={{ backgroundColor: brandColor }}
-        />
-      )}
+        ) : (
+          <div
+            className="featured-card-glow featured-card-glow--default"
+            style={{ backgroundColor: brandColor }}
+          />
+        )}
 
-      <div
-        className="featured-card-body relative z-[3] flex min-h-[168px] flex-col p-3.5"
-        style={isYouTube ? { color: "#ffffff" } : undefined}
-      >
+        <div
+          className="featured-card-body relative flex min-h-[168px] flex-col p-3.5"
+          style={isYouTube ? { color: "#ffffff" } : undefined}
+        >
         <div className="featured-card-main mb-2">
           <div className="mb-2 flex items-center gap-2">
             {hasLogo ? (
@@ -112,11 +103,11 @@ export function FeaturedCard({
           </ul>
         </div>
 
-        <div className="featured-card-cta relative z-[3] mt-auto">
+        <div className="featured-card-cta relative z-10 mt-auto">
           <button
             type="button"
             onClick={openPartner}
-            className={`flex w-full items-center justify-center gap-1.5 rounded-[var(--radius-md)] py-2.5 text-xs font-bold transition active:scale-[0.98] ${
+            className={`relative z-10 flex w-full items-center justify-center gap-1.5 rounded-[var(--radius-md)] py-2.5 text-xs font-bold transition active:scale-[0.98] ${
               isYouTube ? "text-white" : "text-[#131323]"
             }`}
             style={{ backgroundColor: brandColor }}
@@ -129,5 +120,13 @@ export function FeaturedCard({
         </div>
       </div>
     </article>
+
+      {isYouTube ? (
+        <div className="featured-card-person-anchor" aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/depman.png" alt="" className="featured-card-person" />
+        </div>
+      ) : null}
+    </div>
   );
 }

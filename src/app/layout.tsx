@@ -39,6 +39,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full antialiased" suppressHydrationWarning>
+        <Script src="/viewport-fix.js" strategy="beforeInteractive" />
         <Script src="/theme-init.js" strategy="beforeInteractive" />
         <AppProviders>{children}</AppProviders>
       </body>

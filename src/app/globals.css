@@ -42,6 +42,9 @@
   --radius-xl: 24px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
+  --viewport-w: 100vw;
+  --app-gutter: 12px;
+  --featured-person-peek: 1.25rem;
 }
 
 [data-theme="dark"] {
@@ -85,6 +88,9 @@
   --radius-xl: 24px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
+  --viewport-w: 100vw;
+  --app-gutter: 12px;
+  --featured-person-peek: 1.25rem;
 }
 
 @theme inline {
@@ -97,10 +103,23 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html[data-app="miniapp"] {
+  font-size: clamp(15px, calc(var(--viewport-w, 100%) / 360 * 16px), 18px);
+  width: 100%;
+  overflow-x: clip;
+}
+
 html,
 body {
+  width: 100%;
   height: 100%;
-  overflow-x: hidden;
+  margin: 0;
+  overflow-x: clip;
 }
 
 body {
@@ -111,10 +130,31 @@ body {
 }
 
 .tma-shell {
-  max-width: 350px;
-  margin: 0 auto;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   min-height: 100dvh;
   background: var(--bg);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+.tma-gutter-x {
+  padding-left: var(--app-gutter);
+  padding-right: var(--app-gutter);
+}
+
+@media (min-width: 520px) {
+  html[data-app="miniapp"] .tma-shell:not(.tma-shell--static) {
+    max-width: 480px;
+    margin-inline: auto;
+  }
+}
+
+.tma-shell--static {
+  max-width: 375px;
+  margin-inline: auto;
 }
 
 .card-shadow {
@@ -213,6 +253,9 @@ body {
 }
 
 .new-bonus-card {
+  flex: 0 0 calc((100cqw - 20px) / 3);
+  width: calc((100cqw - 20px) / 3);
+  min-width: 96px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -249,6 +292,8 @@ body {
 }
 
 .new-bonus-carousel-viewport {
+  width: 100%;
+  container-type: inline-size;
   touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
@@ -433,29 +478,41 @@ body {
 }
 
 .featured-card--youtube .featured-card-body {
-  z-index: 3;
+  z-index: auto;
 }
 
-.featured-card-clip {
+.featured-card-wrap {
+  position: relative;
+  overflow: visible;
+  padding-top: var(--featured-person-peek);
+  margin-top: calc(var(--featured-person-peek) * 0.15);
+}
+
+.featured-card-shell {
+  position: relative;
+  overflow: visible;
+}
+
+.featured-card-person-anchor {
   position: absolute;
-  top: -28px;
   right: 0;
   bottom: 0;
-  left: 0;
-  z-index: 2;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
+  height: 100%;
+  z-index: 1;
+  width: 52%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  overflow-x: clip;
+  overflow-y: visible;
   pointer-events: none;
 }
 
 .featured-card-person {
-  position: absolute;
-  right: -18px;
-  bottom: 0;
-  z-index: 1;
-  height: 132%;
+  display: block;
   width: auto;
-  max-width: 72%;
+  max-width: none;
+  height: calc(100% + var(--featured-person-peek));
   object-fit: contain;
   object-position: bottom right;
   pointer-events: none;
@@ -469,6 +526,7 @@ body {
 
 .featured-card--youtube .featured-card-cta {
   position: relative;
+  z-index: 10;
 }
 
 .bonus-stats-panel {
@@ -641,7 +699,7 @@ body {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 350px;
+  max-width: 100%;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   background-color: var(--modal-bg);
@@ -741,7 +799,7 @@ body {
 }
 
 .hero-title {
-  font-size: 15px;
+  font-size: clamp(15px, 4.2vw, 18px);
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.03em;

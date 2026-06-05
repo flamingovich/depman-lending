@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { PartnerLogo } from "@/components/miniapp/PartnerLogo";
 
 export type StripPartner = {
@@ -15,28 +21,46 @@ export type StripPartner = {
   bonusValue?: string | null;
 };
 
-const CARD_WIDTH = 100;
 const GAP = 10;
 const VISIBLE = 3;
-const STEP = CARD_WIDTH + GAP;
 const AUTO_MS = 5000;
 
 export function NewBonusesStrip({ partners }: { partners: StripPartner[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [step, setStep] = useState(110);
   const maxIndex = Math.max(0, partners.length - VISIBLE);
   const slideCount = maxIndex + 1;
-  const viewportWidth = VISIBLE * CARD_WIDTH + (VISIBLE - 1) * GAP;
+
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      const card = el.querySelector<HTMLElement>(".new-bonus-card");
+      if (!card) return;
+      const track = el.querySelector<HTMLElement>(".new-bonus-carousel-track");
+      const gap = track
+        ? Number.parseFloat(getComputedStyle(track).gap) || GAP
+        : GAP;
+      setStep(card.offsetWidth + gap);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [partners.length]);
 
   const scrollToIndex = useCallback(
     (next: number, smooth = true) => {
       scrollRef.current?.scrollTo({
-        left: next * STEP,
+        left: next * step,
         behavior: smooth ? "smooth" : "instant",
       });
     },
-    [],
+    [step],
   );
 
   const goTo = useCallback(
@@ -73,7 +97,7 @@ export function NewBonusesStrip({ partners }: { partners: StripPartner[] }) {
     const syncFromScroll = () => {
       const next = Math.min(
         maxIndex,
-        Math.max(0, Math.round(el.scrollLeft / STEP)),
+        Math.max(0, Math.round(el.scrollLeft / step)),
       );
       setIndex((prev) => (prev === next ? prev : next));
       setPaused(false);
@@ -93,16 +117,15 @@ export function NewBonusesStrip({ partners }: { partners: StripPartner[] }) {
       el.removeEventListener("scrollend", syncFromScroll);
       if (scrollTimer) window.clearTimeout(scrollTimer);
     };
-  }, [maxIndex]);
+  }, [maxIndex, step]);
 
   if (partners.length === 0) return null;
 
   return (
-    <section className="overflow-visible px-3 pt-1 pb-1">
+    <section className="overflow-visible pt-1 pb-1">
       <div
         ref={scrollRef}
-        className="new-bonus-carousel-viewport mx-auto overflow-x-auto py-0.5"
-        style={{ width: viewportWidth }}
+        className="new-bonus-carousel-viewport overflow-x-auto py-0.5"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onTouchStart={() => setPaused(true)}
@@ -113,7 +136,7 @@ export function NewBonusesStrip({ partners }: { partners: StripPartner[] }) {
               key={partner.id}
               href={`/partner/${partner.slug}`}
               draggable={false}
-              className="new-bonus-card relative flex w-[100px] shrink-0 snap-start flex-col items-center px-1.5 py-2 active:scale-[0.98]"
+              className="new-bonus-card relative flex shrink-0 snap-start flex-col items-center px-1.5 py-2 active:scale-[0.98]"
             >
               <span className="chip-new">NEW</span>
 

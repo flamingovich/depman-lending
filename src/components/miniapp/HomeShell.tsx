@@ -9,7 +9,6 @@ import { FooterInfo } from "@/components/miniapp/FooterInfo";
 import { HeaderActions } from "@/components/miniapp/HeaderActions";
 import { NewBonusesStrip } from "@/components/miniapp/NewBonusesStrip";
 import { SearchOverlay } from "@/components/miniapp/SearchOverlay";
-import { Star } from "lucide-react";
 
 export type HomePartner = {
   id: string;
@@ -56,10 +55,6 @@ function stripBonusValue(partner: HomePartner) {
   if (!b) return null;
   if (b.value) return b.value;
   return b.title;
-}
-
-function heroTitleText(title: string) {
-  return title.replace(/^⭐\s*/, "").trim();
 }
 
 function sortPartners(list: HomePartner[]) {
@@ -129,21 +124,11 @@ export function HomeShell({
         />
       </header>
 
-      <main className="space-y-3 pb-6 pt-2">
+      <main className="tma-gutter-x space-y-3 overflow-visible pb-6 pt-2">
         <NewBonusesStrip partners={newStrip} />
 
-        <h1 className="hero-title flex items-center gap-1.5 px-3 text-[var(--text)]">
-          <Star
-            className="h-4 w-4 shrink-0 fill-[var(--accent)] text-[var(--accent)]"
-            strokeWidth={0}
-          />
-          <span className="whitespace-nowrap">
-            {heroTitleText(settings.heroTitle)}
-          </span>
-        </h1>
-
         {featured ? (
-          <div className="overflow-visible px-3 pt-5">
+          <div className="featured-card-wrap">
             <FeaturedCard
               slug={featured.slug}
               name={featured.name}
@@ -159,7 +144,7 @@ export function HomeShell({
         ) : null}
 
         {bestPartners.length > 0 ? (
-          <section className="grid grid-cols-1 gap-2 px-3">
+          <section className="grid grid-cols-1 gap-2">
             {bestPartners.map((partner) => (
               <CasinoGridCard key={partner.id} partner={partner} />
             ))}
@@ -167,7 +152,7 @@ export function HomeShell({
         ) : null}
 
         {allPartners.length > 0 ? (
-          <section className="space-y-1.5 px-3">
+          <section className="space-y-1.5">
             {allPartners.map((partner) => (
               <CompactPartnerCard
                 key={partner.id}
@@ -181,7 +166,7 @@ export function HomeShell({
         ) : null}
 
         {filtered.length === 0 ? (
-          <p className="surface-card mx-3 rounded-[var(--radius-lg)] p-6 text-center text-sm text-[var(--muted)]">
+          <p className="surface-card rounded-[var(--radius-lg)] p-6 text-center text-sm text-[var(--muted)]">
             Проекты не найдены
           </p>
         ) : null}

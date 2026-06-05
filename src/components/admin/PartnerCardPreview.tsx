@@ -57,7 +57,7 @@ export function PartnerCardPreview({ partner }: PartnerCardPreviewProps) {
 
       <div
         data-theme={theme}
-        className="tma-shell overflow-hidden rounded-xl border border-slate-200 bg-[var(--bg)] py-2"
+        className="tma-shell tma-shell--static overflow-hidden rounded-xl border border-slate-200 bg-[var(--bg)] py-2"
       >
         {partner.cardLayout === "compact" ? (
           <div className="px-3">

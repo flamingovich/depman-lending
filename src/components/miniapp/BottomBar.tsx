@@ -27,7 +27,7 @@ export function BottomBar({ title, rating, ctaText, botUrl }: BottomBarProps) {
 
   return (
     <div
-      className="fixed right-0 bottom-0 left-0 z-40 mx-auto max-w-[480px] px-3"
+      className="fixed right-0 bottom-0 left-0 z-40 mx-auto w-full max-w-[480px] px-3"
       style={{ paddingBottom: "calc(12px + var(--safe-bottom))" }}
     >
       <div

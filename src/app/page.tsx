@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { HomeShell } from "@/components/miniapp/HomeShell";
+import { MiniAppShell } from "@/components/miniapp/MiniAppShell";
 import { getActivePartners, getSiteSettings } from "@/lib/data";
 
 type PageProps = {
@@ -43,7 +44,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   }));
 
   return (
-    <div className="tma-shell">
+    <MiniAppShell>
       <Suspense fallback={null}>
         <HomeShell
           settings={{
@@ -56,6 +57,6 @@ export default async function HomePage({ searchParams }: PageProps) {
           initialQuery={q ?? ""}
         />
       </Suspense>
-    </div>
+    </MiniAppShell>
   );
 }
