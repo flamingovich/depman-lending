@@ -1,14 +1,14 @@
-import sharp from "sharp";
+import { Jimp } from "jimp";
 
 export const PERSON_IMAGE_SIZE = 1340;
 
 export async function processPersonImage(input: Buffer) {
-  return sharp(input)
-    .resize(PERSON_IMAGE_SIZE, PERSON_IMAGE_SIZE, {
-      fit: "contain",
-      background: { r: 0, g: 0, b: 0, alpha: 0 },
-      position: "southeast",
-    })
-    .png()
-    .toBuffer();
+  const size = PERSON_IMAGE_SIZE;
+  const image = await Jimp.read(input);
+  image.scaleToFit({ w: size, h: size });
+
+  const canvas = new Jimp({ width: size, height: size, color: 0x00000000 });
+  canvas.composite(image, size - image.width, size - image.height);
+
+  return canvas.getBuffer("image/png");
 }
