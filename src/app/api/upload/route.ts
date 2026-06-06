@@ -2,7 +2,6 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
-import { processPersonImage } from "@/lib/process-person-image";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = new Set([
@@ -50,12 +49,9 @@ export async function POST(request: Request) {
     const variant = String(formData.get("variant") ?? "");
     const isPerson = variant === "person";
 
-    if (isPerson && file.type === "image/webp") {
+    if (isPerson && file.type !== "image/png" && !file.name.toLowerCase().endsWith(".png")) {
       return NextResponse.json(
-        {
-          error:
-            "Для фото на баннере используйте PNG с прозрачностью (WebP пока не поддерживается)",
-        },
+        { error: "Для фото на баннере загрузите PNG с прозрачностью" },
         { status: 400 },
       );
     }
@@ -77,9 +73,7 @@ export async function POST(request: Request) {
     await mkdir(uploadDir, { recursive: true });
 
     const raw = Buffer.from(await file.arrayBuffer());
-    const output = isPerson ? await processPersonImage(raw) : raw;
-
-    await writeFile(path.join(uploadDir, filename), output);
+    await writeFile(path.join(uploadDir, filename), raw);
 
     return NextResponse.json({ url: `/uploads/logos/${filename}` });
   } catch (error) {
@@ -87,10 +81,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     console.error("[upload]", error);
-    const message =
-      error instanceof Error && error.message.includes("decoding")
-        ? "Не удалось прочитать файл. Загрузите PNG с прозрачностью."
-        : "Не удалось загрузить файл. Попробуйте PNG до 2 МБ.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Не удалось загрузить файл. Попробуйте PNG до 2 МБ." },
+      { status: 500 },
+    );
   }
 }

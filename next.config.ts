@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["jimp", "@jimp/core"],
   images: {
     remotePatterns: [
       {

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { resolveLogoUrl } from "@/lib/logo-url";
+import { processPersonImageInBrowser } from "@/lib/process-person-image-client";
 
 type PersonImageUploadFieldProps = {
   value: string;
@@ -26,12 +27,19 @@ export function PersonImageUploadField({
     setUploadError(null);
     setPreviewError(null);
 
-    const body = new FormData();
-    body.append("file", file);
-    body.append("prefix", uploadPrefix);
-    body.append("variant", "person");
-
     try {
+      const processed = await processPersonImageInBrowser(file);
+
+      if (processed.size > 2 * 1024 * 1024) {
+        setUploadError("После обработки файл больше 2 МБ. Используйте PNG поменьше.");
+        return;
+      }
+
+      const body = new FormData();
+      body.append("file", processed);
+      body.append("prefix", uploadPrefix);
+      body.append("variant", "person");
+
       const res = await fetch("/api/upload", { method: "POST", body });
       const data = (await res.json()) as { url?: string; error?: string };
 
@@ -44,8 +52,10 @@ export function PersonImageUploadField({
         onChange(data.url);
         setPreviewVersion((v) => v + 1);
       }
-    } catch {
-      setUploadError("Не удалось загрузить файл");
+    } catch (error) {
+      setUploadError(
+        error instanceof Error ? error.message : "Не удалось загрузить файл",
+      );
     } finally {
       setUploading(false);
     }
@@ -104,7 +114,7 @@ export function PersonImageUploadField({
             disabled={uploading}
             className="admin-btn-secondary w-fit px-4 py-2 disabled:opacity-60"
           >
-            {uploading ? "Загрузка..." : value ? "Заменить фото" : "Загрузить фото"}
+            {uploading ? "Обработка..." : value ? "Заменить фото" : "Загрузить фото"}
           </button>
 
           {value ? (
