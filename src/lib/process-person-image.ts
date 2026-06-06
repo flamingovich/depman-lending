@@ -1,14 +1,14 @@
-import { Jimp } from "jimp";
-
 export const PERSON_IMAGE_SIZE = 1340;
 
 export async function processPersonImage(input: Buffer) {
-  const size = PERSON_IMAGE_SIZE;
+  const { Jimp, HorizontalAlign, VerticalAlign } = await import("jimp");
   const image = await Jimp.read(input);
-  image.scaleToFit({ w: size, h: size });
+  image.background = 0x00000000;
+  image.contain({
+    w: PERSON_IMAGE_SIZE,
+    h: PERSON_IMAGE_SIZE,
+    align: HorizontalAlign.RIGHT | VerticalAlign.BOTTOM,
+  });
 
-  const canvas = new Jimp({ width: size, height: size, color: 0x00000000 });
-  canvas.composite(image, size - image.width, size - image.height);
-
-  return canvas.getBuffer("image/png");
+  return image.getBuffer("image/png");
 }

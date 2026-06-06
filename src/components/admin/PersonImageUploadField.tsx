@@ -55,7 +55,7 @@ export function PersonImageUploadField({
     <div className="space-y-2 md:col-span-2">
       <span className="text-sm font-semibold">Фото в карточке (YouTube)</span>
       <p className="text-xs text-slate-400">
-        PNG или WebP с прозрачностью. Автоматически приводится к 1340×1340 px.
+        PNG с прозрачностью. Автоматически приводится к 1340×1340 px.
         Если меньше — увеличится, расположение справа снизу сохранится.
       </p>
 
@@ -89,7 +89,7 @@ export function PersonImageUploadField({
           <input
             ref={inputRef}
             type="file"
-            accept="image/png,image/webp,.png,.webp"
+            accept="image/png,.png"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];

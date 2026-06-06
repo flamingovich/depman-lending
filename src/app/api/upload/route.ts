@@ -47,6 +47,19 @@ export async function POST(request: Request) {
       );
     }
 
+    const variant = String(formData.get("variant") ?? "");
+    const isPerson = variant === "person";
+
+    if (isPerson && file.type === "image/webp") {
+      return NextResponse.json(
+        {
+          error:
+            "Для фото на баннере используйте PNG с прозрачностью (WebP пока не поддерживается)",
+        },
+        { status: 400 },
+      );
+    }
+
     if (file.size > MAX_BYTES) {
       return NextResponse.json(
         { error: "Максимальный размер файла — 2 МБ" },
@@ -56,8 +69,6 @@ export async function POST(request: Request) {
 
     const ext = fileExtension(file);
     const prefix = safePrefix(String(formData.get("prefix") ?? "logo"));
-    const variant = String(formData.get("variant") ?? "");
-    const isPerson = variant === "person";
     const filename = isPerson
       ? `${prefix}-${Date.now()}.png`
       : `${prefix}-${Date.now()}.${ext}`;
@@ -75,6 +86,11 @@ export async function POST(request: Request) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.json({ error: "Не удалось загрузить файл" }, { status: 500 });
+    console.error("[upload]", error);
+    const message =
+      error instanceof Error && error.message.includes("decoding")
+        ? "Не удалось прочитать файл. Загрузите PNG с прозрачностью."
+        : "Не удалось загрузить файл. Попробуйте PNG до 2 МБ.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
