@@ -40,6 +40,7 @@ model Partner {
   logoLightUrl String?
   logoDarkUrl  String?
   bannerUrl   String?
+  personImageUrl String?
   badge       String?
   rating      Float    @default(5.0)
   accentColor String   @default("#b8ff3c")

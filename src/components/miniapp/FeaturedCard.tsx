@@ -4,7 +4,10 @@ import { Play } from "lucide-react";
 import { CheckItem } from "@/components/miniapp/CheckItem";
 import { PartnerLogo } from "@/components/miniapp/PartnerLogo";
 import { isChannelKind } from "@/lib/partner-kind";
+import { resolveLogoUrl } from "@/lib/logo-url";
 import { parseFeatures } from "@/lib/utils";
+
+const DEFAULT_PERSON_IMAGE = "/images/depman.png";
 
 const YOUTUBE_RED = "#FF0000";
 
@@ -15,6 +18,7 @@ type FeaturedCardProps = {
   logoUrl?: string | null;
   logoLightUrl?: string | null;
   logoDarkUrl?: string | null;
+  personImageUrl?: string | null;
   accentColor: string;
   features: string;
   ctaText: string;
@@ -28,6 +32,7 @@ export function FeaturedCard({
   logoUrl,
   logoLightUrl,
   logoDarkUrl,
+  personImageUrl,
   accentColor,
   features,
   ctaText,
@@ -37,6 +42,8 @@ export function FeaturedCard({
   const isChannel = isChannelKind(kind);
   const brandColor = isChannel ? accentColor || YOUTUBE_RED : accentColor;
   const hasLogo = logoUrl || logoLightUrl || logoDarkUrl;
+  const personSrc =
+    resolveLogoUrl(personImageUrl ?? undefined) ?? DEFAULT_PERSON_IMAGE;
 
   function openPartner() {
     if (!affiliateUrl) {
@@ -131,7 +138,7 @@ export function FeaturedCard({
       {isChannel ? (
         <div className="featured-card-person-anchor" aria-hidden>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/depman.png" alt="" className="featured-card-person" />
+          <img src={personSrc} alt="" className="featured-card-person" />
         </div>
       ) : null}
     </div>

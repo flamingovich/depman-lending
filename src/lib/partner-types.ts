@@ -12,6 +12,7 @@ export type PartnerFormData = {
   logoUrl?: string;
   logoLightUrl?: string;
   logoDarkUrl?: string;
+  personImageUrl?: string;
   badge?: string;
   rating: number;
   accentColor: string;

@@ -6,6 +6,11 @@ function optionalText(value?: string) {
   return trimmed ? trimmed : undefined;
 }
 
+function nullableText(value?: string) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
 export function buildPartnerPayload(
   form: PartnerFormData,
   featuresText: string,
@@ -26,6 +31,9 @@ export function buildPartnerPayload(
     logoUrl: optionalText(form.logoUrl),
     logoLightUrl: optionalText(form.logoLightUrl),
     logoDarkUrl: optionalText(form.logoDarkUrl),
+    personImageUrl: isChannelKind(form.kind)
+      ? nullableText(form.personImageUrl)
+      : null,
     badge: optionalText(form.badge),
     rating: Number.isFinite(rating) ? rating : 5,
     accentColor: form.accentColor,

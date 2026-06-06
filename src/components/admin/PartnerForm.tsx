@@ -1,6 +1,7 @@
 "use client";
 
 import { LogoUploadField } from "@/components/admin/LogoUploadField";
+import { PersonImageUploadField } from "@/components/admin/PersonImageUploadField";
 import { PartnerCardPreview } from "@/components/admin/PartnerCardPreview";
 import { ShortLinkField } from "@/components/admin/ShortLinkField";
 import { buildPartnerPayload } from "@/lib/partner-payload";
@@ -136,7 +137,44 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
                 Промо-канал (баннер сверху, не в каталоге)
               </option>
             </select>
+            {form.kind === PARTNER_KINDS.casino ? (
+              <p className="text-xs text-slate-500">
+                Фото человека на баннере — только у типа «Промо-канал» (YouTube).
+              </p>
+            ) : null}
           </label>
+
+          {isChannel ? (
+            <section className="admin-card space-y-4 border border-red-500/20 bg-red-500/5 p-5 md:col-span-2">
+              <div>
+                <h2 className="text-base font-extrabold text-white">
+                  YouTube-баннер на главной
+                </h2>
+                <p className="mt-1 text-xs text-slate-400">
+                  Фото справа на карточке канала. Без загрузки — depman.png.
+                </p>
+              </div>
+
+              <PersonImageUploadField
+                value={form.personImageUrl ?? ""}
+                onChange={(url) => setForm({ ...form, personImageUrl: url })}
+                uploadPrefix={`${logoPrefix}-person`}
+              />
+
+              <label className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={form.isFeatured}
+                  onChange={(e) =>
+                    setForm({ ...form, isFeatured: e.target.checked })
+                  }
+                />
+                <span className="text-sm font-semibold">
+                  Показывать промо-баннер на главной
+                </span>
+              </label>
+            </section>
+          ) : null}
 
           <label className="block space-y-1 md:col-span-2">
             <span className="text-sm font-semibold">Название *</span>
@@ -371,21 +409,6 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               className="admin-input"
             />
           </label>
-
-          {isChannel ? (
-            <label className="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={form.isFeatured}
-                onChange={(e) =>
-                  setForm({ ...form, isFeatured: e.target.checked })
-                }
-              />
-              <span className="text-sm font-semibold">
-                Показывать промо-баннер на главной
-              </span>
-            </label>
-          ) : null}
 
           <label className="inline-flex items-center gap-2">
             <input

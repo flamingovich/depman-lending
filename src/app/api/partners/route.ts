@@ -27,6 +27,7 @@ const partnerSchema = z.object({
   logoLightUrl: z.string().optional(),
   logoDarkUrl: z.string().optional(),
   bannerUrl: z.string().optional(),
+  personImageUrl: z.string().nullish(),
   badge: z.string().optional(),
   rating: z.number().optional(),
   accentColor: z.string().optional(),

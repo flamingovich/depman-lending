@@ -19,6 +19,7 @@ export type HomePartner = {
   logoUrl?: string | null;
   logoLightUrl?: string | null;
   logoDarkUrl?: string | null;
+  personImageUrl?: string | null;
   badge?: string | null;
   rating: number;
   accentColor: string;
@@ -147,6 +148,7 @@ export function HomeShell({
               logoUrl={channelPromo.logoUrl}
               logoLightUrl={channelPromo.logoLightUrl}
               logoDarkUrl={channelPromo.logoDarkUrl}
+              personImageUrl={channelPromo.personImageUrl}
               accentColor={channelPromo.accentColor}
               features={channelPromo.features}
               ctaText={channelPromo.ctaText}

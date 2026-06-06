@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
+import { processPersonImage } from "@/lib/process-person-image";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = new Set([
@@ -55,14 +56,19 @@ export async function POST(request: Request) {
 
     const ext = fileExtension(file);
     const prefix = safePrefix(String(formData.get("prefix") ?? "logo"));
-    const filename = `${prefix}-${Date.now()}.${ext}`;
+    const variant = String(formData.get("variant") ?? "");
+    const isPerson = variant === "person";
+    const filename = isPerson
+      ? `${prefix}-${Date.now()}.png`
+      : `${prefix}-${Date.now()}.${ext}`;
     const uploadDir = path.join(process.cwd(), "public", "uploads", "logos");
 
     await mkdir(uploadDir, { recursive: true });
-    await writeFile(
-      path.join(uploadDir, filename),
-      Buffer.from(await file.arrayBuffer()),
-    );
+
+    const raw = Buffer.from(await file.arrayBuffer());
+    const output = isPerson ? await processPersonImage(raw) : raw;
+
+    await writeFile(path.join(uploadDir, filename), output);
 
     return NextResponse.json({ url: `/uploads/logos/${filename}` });
   } catch (error) {
