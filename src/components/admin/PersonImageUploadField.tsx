@@ -3,6 +3,10 @@
 import { useRef, useState } from "react";
 import { resolveLogoUrl } from "@/lib/logo-url";
 import { processPersonImageInBrowser } from "@/lib/process-person-image-client";
+import {
+  formatMegabytes,
+  MAX_PERSON_UPLOAD_BYTES,
+} from "@/lib/upload-limits";
 
 type PersonImageUploadFieldProps = {
   value: string;
@@ -30,8 +34,10 @@ export function PersonImageUploadField({
     try {
       const processed = await processPersonImageInBrowser(file);
 
-      if (processed.size > 2 * 1024 * 1024) {
-        setUploadError("После обработки файл больше 2 МБ. Используйте PNG поменьше.");
+      if (processed.size > MAX_PERSON_UPLOAD_BYTES) {
+        setUploadError(
+          `После обработки ${formatMegabytes(processed.size)} — лимит ${formatMegabytes(MAX_PERSON_UPLOAD_BYTES)}. Сожмите PNG или уменьшите исходник.`,
+        );
         return;
       }
 
@@ -41,7 +47,19 @@ export function PersonImageUploadField({
       body.append("variant", "person");
 
       const res = await fetch("/api/upload", { method: "POST", body });
-      const data = (await res.json()) as { url?: string; error?: string };
+      let data: { url?: string; error?: string };
+      try {
+        data = (await res.json()) as { url?: string; error?: string };
+      } catch {
+        if (res.status === 413) {
+          setUploadError(
+            "Сервер отклонил файл как слишком большой. Нужно увеличить лимит nginx (client_max_body_size).",
+          );
+          return;
+        }
+        setUploadError(`Ошибка сервера при загрузке (${res.status}).`);
+        return;
+      }
 
       if (!res.ok) {
         setUploadError(data.error ?? "Не удалось загрузить файл");
@@ -65,8 +83,8 @@ export function PersonImageUploadField({
     <div className="space-y-2 md:col-span-2">
       <span className="text-sm font-semibold">Фото в карточке (YouTube)</span>
       <p className="text-xs text-slate-400">
-        PNG с прозрачностью. Автоматически приводится к 1340×1340 px.
-        Если меньше — увеличится, расположение справа снизу сохранится.
+        PNG с прозрачностью. Исходник может быть большим — перед загрузкой
+        приводится к 1340×1340 px (лимит после обработки — 8 МБ).
       </p>
 
       <div className="flex flex-wrap items-start gap-4">

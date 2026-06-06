@@ -2,8 +2,11 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
-
-const MAX_BYTES = 2 * 1024 * 1024;
+import {
+  formatMegabytes,
+  MAX_LOGO_UPLOAD_BYTES,
+  MAX_PERSON_UPLOAD_BYTES,
+} from "@/lib/upload-limits";
 const ALLOWED_TYPES = new Set([
   "image/png",
   "image/x-png",
@@ -56,9 +59,12 @@ export async function POST(request: Request) {
       );
     }
 
-    if (file.size > MAX_BYTES) {
+    if (file.size > (isPerson ? MAX_PERSON_UPLOAD_BYTES : MAX_LOGO_UPLOAD_BYTES)) {
+      const limit = formatMegabytes(
+        isPerson ? MAX_PERSON_UPLOAD_BYTES : MAX_LOGO_UPLOAD_BYTES,
+      );
       return NextResponse.json(
-        { error: "Максимальный размер файла — 2 МБ" },
+        { error: `Максимальный размер файла — ${limit}` },
         { status: 400 },
       );
     }
@@ -82,7 +88,7 @@ export async function POST(request: Request) {
     }
     console.error("[upload]", error);
     return NextResponse.json(
-      { error: "Не удалось загрузить файл. Попробуйте PNG до 2 МБ." },
+      { error: "Не удалось сохранить файл на сервере." },
       { status: 500 },
     );
   }
