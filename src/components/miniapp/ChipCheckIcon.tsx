@@ -41,8 +41,9 @@ export function ChipCheckIcon({
       width={size}
       height={size}
       aria-hidden
-      className={className}
+      className={`chip-check-icon ${className}`.trim()}
     >
+      <g className="chip-check-icon__disc">
       <path
         fill={c.shadow1}
         d="M22.5 12.4c0 5.763-4.716 10.48-10.52 10.48S1.5 18.162 1.5 12.4v-1.613h21z"
@@ -87,7 +88,9 @@ export function ChipCheckIcon({
         fill={c.highlight}
         d="M11.98 4.983c3.789 0 6.892 2.943 7.094 6.691v-.443c0-3.91-3.184-7.094-7.094-7.094S4.886 7.32 4.886 11.23v.443c.242-3.748 3.305-6.69 7.094-6.69"
       />
+      </g>
       <path
+        className="chip-check-icon__mark"
         fill="#242424"
         fillRule="evenodd"
         d="M8.994 10.919a.944.944 0 0 0-1.237 0 .733.733 0 0 0 0 1.114l2.625 2.363c.165.148.387.231.62.231h.028a.92.92 0 0 0 .63-.269l6.126-6.302a.734.734 0 0 0-.082-1.111.946.946 0 0 0-1.235.073l-5.51 5.669z"

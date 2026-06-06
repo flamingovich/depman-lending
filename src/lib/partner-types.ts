@@ -13,6 +13,7 @@ export type PartnerFormData = {
   logoLightUrl?: string;
   logoDarkUrl?: string;
   personImageUrl?: string;
+  cardScreenshotUrl?: string;
   badge?: string;
   rating: number;
   accentColor: string;

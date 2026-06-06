@@ -54,6 +54,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
       ctaText: form.ctaText || "Забрать бонусы",
       affiliateUrl: form.affiliateUrl || null,
       cardLayout: form.cardLayout,
+      cardScreenshotUrl: form.cardScreenshotUrl || null,
       bonusValue: form.bonuses[0]?.value || form.bonuses[0]?.title || null,
     }),
     [form, featuresText],
@@ -244,6 +245,21 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             uploadPrefix={`${logoPrefix}-fallback`}
             previewTheme="light"
           />
+
+          {!isChannel ? (
+            <LogoUploadField
+              label="Скриншот на фоне карточки (опционально)"
+              hint="Фон справа на карточке в списке и блоке «Лучшие». PNG или JPG, до 8 МБ."
+              value={form.cardScreenshotUrl ?? ""}
+              onChange={(url) => setForm({ ...form, cardScreenshotUrl: url })}
+              uploadPrefix={`${logoPrefix}-screenshot`}
+              uploadVariant="screenshot"
+              accept="image/png,image/jpeg,image/jpg,.png,.jpg,.jpeg"
+              sizeHint="Скриншот главной сайта. Виден справа под углом 45°, прозрачность 12%."
+              enablePaste
+              previewTheme="dark"
+            />
+          ) : null}
 
           <label className="block space-y-1">
             <span className="text-sm font-semibold">Рейтинг</span>

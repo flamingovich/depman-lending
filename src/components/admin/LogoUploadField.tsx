@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { resolveLogoUrl } from "@/lib/logo-url";
 
 type LogoUploadFieldProps = {
@@ -10,6 +10,10 @@ type LogoUploadFieldProps = {
   onChange: (url: string) => void;
   uploadPrefix?: string;
   previewTheme?: "light" | "dark";
+  accept?: string;
+  uploadVariant?: string;
+  sizeHint?: string;
+  enablePaste?: boolean;
 };
 
 const PREVIEW_BACKGROUNDS = {
@@ -25,6 +29,26 @@ const PREVIEW_BACKGROUNDS = {
   },
 } as const;
 
+function fileFromClipboardData(data: DataTransfer) {
+  for (const item of data.items) {
+    if (!item.type.startsWith("image/")) continue;
+    const blob = item.getAsFile();
+    if (!blob) continue;
+
+    const ext = blob.type.includes("jpeg")
+      ? "jpg"
+      : blob.type.includes("webp")
+        ? "webp"
+        : "png";
+
+    return new File([blob], `paste-${Date.now()}.${ext}`, {
+      type: blob.type || "image/png",
+    });
+  }
+
+  return null;
+}
+
 export function LogoUploadField({
   label,
   hint,
@@ -32,42 +56,91 @@ export function LogoUploadField({
   onChange,
   uploadPrefix = "logo",
   previewTheme = "light",
+  accept = "image/png,image/webp,.png,.webp",
+  uploadVariant,
+  sizeHint = "Рекомендуемый размер: 500×250 px, PNG без фона",
+  enablePaste = false,
 }: LogoUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const pasteZoneRef = useRef<HTMLDivElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [previewVersion, setPreviewVersion] = useState(0);
+  const [pasteFocused, setPasteFocused] = useState(false);
   const preview = PREVIEW_BACKGROUNDS[previewTheme];
   const previewSrc = value ? resolveLogoUrl(value) : null;
 
-  async function handleFile(file: File) {
-    setUploading(true);
-    setUploadError(null);
-    setPreviewError(null);
+  const handleFile = useCallback(
+    async (file: File) => {
+      setUploading(true);
+      setUploadError(null);
+      setPreviewError(null);
 
-    const body = new FormData();
-    body.append("file", file);
-    body.append("prefix", uploadPrefix);
+      const body = new FormData();
+      body.append("file", file);
+      body.append("prefix", uploadPrefix);
+      if (uploadVariant) body.append("variant", uploadVariant);
+
+      try {
+        const res = await fetch("/api/upload", { method: "POST", body });
+        const data = (await res.json()) as { url?: string; error?: string };
+
+        if (!res.ok) {
+          setUploadError(data.error ?? "Не удалось загрузить файл");
+          return;
+        }
+
+        if (data.url) {
+          onChange(data.url);
+          setPreviewVersion((v) => v + 1);
+        }
+      } catch {
+        setUploadError("Не удалось загрузить файл");
+      } finally {
+        setUploading(false);
+      }
+    },
+    [onChange, uploadPrefix, uploadVariant],
+  );
+
+  async function pasteFromClipboard() {
+    if (uploading) return;
 
     try {
-      const res = await fetch("/api/upload", { method: "POST", body });
-      const data = (await res.json()) as { url?: string; error?: string };
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const imageType = item.types.find((type) => type.startsWith("image/"));
+        if (!imageType) continue;
 
-      if (!res.ok) {
-        setUploadError(data.error ?? "Не удалось загрузить файл");
+        const blob = await item.getType(imageType);
+        const ext = imageType.includes("jpeg")
+          ? "jpg"
+          : imageType.includes("webp")
+            ? "webp"
+            : "png";
+        const file = new File([blob], `paste-${Date.now()}.${ext}`, {
+          type: imageType,
+        });
+        await handleFile(file);
         return;
       }
 
-      if (data.url) {
-        onChange(data.url);
-        setPreviewVersion((v) => v + 1);
-      }
+      setUploadError("В буфере нет изображения");
     } catch {
-      setUploadError("Не удалось загрузить файл");
-    } finally {
-      setUploading(false);
+      pasteZoneRef.current?.focus();
+      setUploadError("Нажмите на блок и вставьте через Ctrl+V / ⌘V");
     }
+  }
+
+  function handlePaste(event: React.ClipboardEvent) {
+    if (!enablePaste || uploading) return;
+
+    const file = fileFromClipboardData(event.clipboardData);
+    if (!file) return;
+
+    event.preventDefault();
+    void handleFile(file);
   }
 
   return (
@@ -75,7 +148,18 @@ export function LogoUploadField({
       <span className="text-sm font-semibold">{label}</span>
       {hint ? <p className="text-xs text-slate-400">{hint}</p> : null}
 
-      <div className="flex flex-wrap items-start gap-4">
+      <div
+        ref={pasteZoneRef}
+        tabIndex={enablePaste ? 0 : undefined}
+        onPaste={enablePaste ? handlePaste : undefined}
+        onFocus={enablePaste ? () => setPasteFocused(true) : undefined}
+        onBlur={enablePaste ? () => setPasteFocused(false) : undefined}
+        className={`flex flex-wrap items-start gap-4 rounded-xl outline-none${
+          enablePaste && pasteFocused
+            ? " ring-1 ring-violet-500/40 ring-offset-2 ring-offset-[#0b1422]"
+            : ""
+        }`}
+      >
         <div className="space-y-1.5">
           <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
             {preview.label}
@@ -116,7 +200,7 @@ export function LogoUploadField({
           <input
             ref={inputRef}
             type="file"
-            accept="image/png,image/webp,.png,.webp"
+            accept={accept}
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -125,18 +209,35 @@ export function LogoUploadField({
             }}
           />
 
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            disabled={uploading}
-            className="admin-btn-secondary w-fit px-4 py-2 disabled:opacity-60"
-          >
-            {uploading ? "Загрузка..." : value ? "Заменить файл" : "Выбрать файл"}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading}
+              className="admin-btn-secondary w-fit px-4 py-2 disabled:opacity-60"
+            >
+              {uploading ? "Загрузка..." : value ? "Заменить файл" : "Выбрать файл"}
+            </button>
 
-          <p className="text-xs text-slate-400">
-            Рекомендуемый размер: 500×250 px, PNG без фона
-          </p>
+            {enablePaste ? (
+              <button
+                type="button"
+                onClick={() => void pasteFromClipboard()}
+                disabled={uploading}
+                className="admin-btn-secondary w-fit px-4 py-2 disabled:opacity-60"
+              >
+                Вставить из буфера
+              </button>
+            ) : null}
+          </div>
+
+          <p className="text-xs text-slate-400">{sizeHint}</p>
+
+          {enablePaste ? (
+            <p className="text-xs text-slate-500">
+              Или кликните сюда и нажмите Ctrl+V / ⌘V
+            </p>
+          ) : null}
 
           {value ? (
             <>

@@ -10,6 +10,7 @@
   --text: #101112;
   --muted: rgba(16, 17, 18, 0.55);
   --border: rgba(16, 17, 18, 0.1);
+  --bonus-card-border: rgba(16, 17, 18, 0.22);
   --accent: #f7c107;
   --accent-dark: #ba9000;
   --accent-hover: #ffdf71;
@@ -20,13 +21,13 @@
   --icon-btn-bg: #ffffff;
   --header-bg: rgba(243, 244, 249, 0.92);
   --btn-outline: #101112;
-  --btn-gold-bg: #0c1424;
-  --btn-gold-bg-top: #101a2e;
-  --btn-gold-bg-bottom: #090f1c;
-  --btn-gold-bg-active: #080c18;
-  --btn-gold-text: #ffd74d;
-  --btn-gold-border-a: #e8b006;
-  --btn-gold-border-b: #ffd74d;
+  --btn-gold-bg: rgba(247, 193, 7, 0.16);
+  --btn-gold-bg-top: rgba(255, 228, 120, 0.38);
+  --btn-gold-bg-bottom: rgba(247, 193, 7, 0.1);
+  --btn-gold-bg-active: rgba(247, 193, 7, 0.26);
+  --btn-gold-text: #5a4300;
+  --btn-gold-border-a: #a87400;
+  --btn-gold-border-b: #e8b006;
   --btn-gold-border-c: #ffe566;
   --btn-gold-border-d: #fff8b8;
   --search-pill-bg: #ffffff;
@@ -42,7 +43,6 @@
   --featured-secondary-text: rgba(16, 17, 18, 0.75);
   --featured-check-text: #101112;
   --bonus-panel-bg: rgba(16, 17, 18, 0.05);
-  --payment-methods-bg: #eef0f6;
   --modal-bg: #ffffff;
   --modal-input-bg: #f3f4f9;
   --radius-sm: 8px;
@@ -98,7 +98,6 @@
   --featured-secondary-text: rgba(255, 255, 255, 0.8);
   --featured-check-text: rgba(255, 255, 255, 0.85);
   --bonus-panel-bg: rgba(255, 255, 255, 0.06);
-  --payment-methods-bg: transparent;
   --modal-bg: #0e1a2d;
   --modal-input-bg: #162236;
   --radius-sm: 8px;
@@ -189,6 +188,10 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.surface-card.bonus-card {
+  border-color: var(--bonus-card-border, var(--border));
 }
 
 .surface-card:hover {
@@ -729,11 +732,24 @@ body {
   margin-bottom: 10px;
 }
 
+.bonus-card-header-logo,
+.payment-methods-row {
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--logo-box-bg) 50%, transparent);
+  border: 1px solid var(--border);
+}
+
 .bonus-card-header-logo {
   min-width: 0;
   overflow: hidden;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 12px;
+  min-height: 32px;
+  box-sizing: border-box;
 }
 
 .bonus-card-header-meta {
@@ -763,17 +779,10 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  height: 20px;
-  margin-bottom: 10px;
-}
-
-[data-theme="light"] .payment-methods-row {
   height: auto;
   min-height: 32px;
   padding: 8px 12px;
-  border-radius: var(--radius-md);
-  background: var(--payment-methods-bg);
-  border: 1px solid var(--border);
+  margin-bottom: 10px;
 }
 
 .payment-method-logo {
@@ -906,6 +915,27 @@ body {
   display: block;
   width: 14px;
   height: 14px;
+}
+
+@keyframes chip-disc-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.chip-check-icon__disc {
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+  animation: chip-disc-spin 14s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip-check-icon__disc {
+    animation: none;
+  }
 }
 
 .check-item-text {

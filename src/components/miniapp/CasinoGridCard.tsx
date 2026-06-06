@@ -3,6 +3,7 @@
 import { Check, Copy, Star } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { CardScreenshotBackdrop } from "@/components/miniapp/CardScreenshotBackdrop";
 import { CheckItem } from "@/components/miniapp/CheckItem";
 import { PartnerLogo } from "@/components/miniapp/PartnerLogo";
 import { PaymentMethodsRow } from "@/components/miniapp/PaymentMethodsRow";
@@ -27,6 +28,7 @@ export type GridPartner = {
   bonus2Value?: string | null;
   ctaText: string;
   affiliateUrl?: string | null;
+  cardScreenshotUrl?: string | null;
 };
 
 type CasinoGridCardProps = {
@@ -40,6 +42,7 @@ export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps
   const features = parseFeatures(partner.features).slice(0, 3);
   const stats = buildPartnerStats(partner);
   const detailHref = preview ? "#" : `/partner/${partner.slug}`;
+  const hasScreenshot = Boolean(partner.cardScreenshotUrl);
 
   function openPartner(e: React.MouseEvent) {
     if (preview) {
@@ -67,7 +70,13 @@ export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps
 
   return (
     <>
-      <article className="surface-card bonus-card flex flex-col rounded-[var(--radius-lg)] p-3">
+      <article
+        className={`surface-card bonus-card relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] p-3`}
+      >
+        {hasScreenshot ? (
+          <CardScreenshotBackdrop url={partner.cardScreenshotUrl} />
+        ) : null}
+        <div className="relative z-10 flex flex-col">
         <div className="bonus-card-header">
           <div className="bonus-card-header-logo">
             <PartnerLogo
@@ -144,6 +153,7 @@ export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps
         >
           Играть на {partner.name}
         </Link>
+        </div>
       </article>
 
       {!preview ? (

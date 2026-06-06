@@ -20,6 +20,7 @@ export type HomePartner = {
   logoLightUrl?: string | null;
   logoDarkUrl?: string | null;
   personImageUrl?: string | null;
+  cardScreenshotUrl?: string | null;
   badge?: string | null;
   rating: number;
   accentColor: string;

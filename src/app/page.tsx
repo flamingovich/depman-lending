@@ -23,6 +23,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     logoLightUrl: p.logoLightUrl,
     logoDarkUrl: p.logoDarkUrl,
     personImageUrl: p.personImageUrl,
+    cardScreenshotUrl: p.cardScreenshotUrl,
     badge: p.badge,
     rating: p.rating,
     accentColor: p.accentColor,

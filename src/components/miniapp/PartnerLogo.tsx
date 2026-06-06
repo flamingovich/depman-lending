@@ -41,7 +41,9 @@ export function PartnerLogo({
   );
 
   const alignClass =
-    variant === "strip" || variant === "detail"
+    variant === "strip" ||
+    variant === "detail" ||
+    variant === "gridHeader"
       ? "object-center"
       : "object-left";
 

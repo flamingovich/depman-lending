@@ -11,19 +11,24 @@ const ALLOWED_TYPES = new Set([
   "image/png",
   "image/x-png",
   "image/webp",
+  "image/jpeg",
+  "image/jpg",
+  "image/pjpeg",
 ]);
 
 function fileExtension(file: File) {
   const fromName = file.name.split(".").pop()?.toLowerCase();
   if (fromName === "webp") return "webp";
   if (fromName === "png") return "png";
+  if (fromName === "jpg" || fromName === "jpeg") return "jpg";
   if (file.type === "image/webp") return "webp";
+  if (file.type === "image/jpeg") return "jpg";
   return "png";
 }
 
 function isAllowedImage(file: File) {
   if (ALLOWED_TYPES.has(file.type)) return true;
-  return /\.(png|webp)$/i.test(file.name);
+  return /\.(png|webp|jpe?g)$/i.test(file.name);
 }
 
 function safePrefix(raw: string) {
@@ -44,13 +49,16 @@ export async function POST(request: Request) {
 
     if (!isAllowedImage(file)) {
       return NextResponse.json(
-        { error: "Допустимы только PNG и WebP" },
+        { error: "Допустимы PNG, JPG и WebP" },
         { status: 400 },
       );
     }
 
     const variant = String(formData.get("variant") ?? "");
     const isPerson = variant === "person";
+    const isScreenshot = variant === "screenshot";
+    const maxBytes =
+      isPerson || isScreenshot ? MAX_PERSON_UPLOAD_BYTES : MAX_LOGO_UPLOAD_BYTES;
 
     if (isPerson && file.type !== "image/png" && !file.name.toLowerCase().endsWith(".png")) {
       return NextResponse.json(
@@ -59,10 +67,8 @@ export async function POST(request: Request) {
       );
     }
 
-    if (file.size > (isPerson ? MAX_PERSON_UPLOAD_BYTES : MAX_LOGO_UPLOAD_BYTES)) {
-      const limit = formatMegabytes(
-        isPerson ? MAX_PERSON_UPLOAD_BYTES : MAX_LOGO_UPLOAD_BYTES,
-      );
+    if (file.size > maxBytes) {
+      const limit = formatMegabytes(maxBytes);
       return NextResponse.json(
         { error: `Максимальный размер файла — ${limit}` },
         { status: 400 },

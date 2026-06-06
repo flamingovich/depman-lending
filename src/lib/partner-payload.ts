@@ -34,6 +34,9 @@ export function buildPartnerPayload(
     personImageUrl: isChannelKind(form.kind)
       ? nullableText(form.personImageUrl)
       : null,
+    cardScreenshotUrl: isChannelKind(form.kind)
+      ? null
+      : nullableText(form.cardScreenshotUrl),
     badge: optionalText(form.badge),
     rating: Number.isFinite(rating) ? rating : 5,
     accentColor: form.accentColor,

@@ -2,6 +2,7 @@
 
 import { Info } from "lucide-react";
 import Link from "next/link";
+import { CardScreenshotBackdrop } from "@/components/miniapp/CardScreenshotBackdrop";
 import { PartnerLogo } from "@/components/miniapp/PartnerLogo";
 
 export type CompactPartner = {
@@ -15,6 +16,7 @@ export type CompactPartner = {
   bonusValue?: string | null;
   ctaText: string;
   affiliateUrl?: string | null;
+  cardScreenshotUrl?: string | null;
 };
 
 export function CompactPartnerCard({
@@ -25,6 +27,7 @@ export function CompactPartnerCard({
   preview?: boolean;
 }) {
   const detailHref = preview ? "#" : `/partner/${partner.slug}`;
+  const hasScreenshot = Boolean(partner.cardScreenshotUrl);
 
   function openPartner(e: React.MouseEvent) {
     if (preview) {
@@ -39,7 +42,11 @@ export function CompactPartnerCard({
   }
 
   return (
-    <article className="surface-card flex items-center gap-2.5 rounded-[var(--radius-lg)] p-2.5">
+    <article className="surface-card relative flex items-center gap-2.5 overflow-hidden rounded-[var(--radius-lg)] p-2.5">
+      {hasScreenshot ? (
+        <CardScreenshotBackdrop url={partner.cardScreenshotUrl} />
+      ) : null}
+      <div className="relative z-10 flex min-w-0 flex-1 items-center gap-2.5">
       <Link
         href={detailHref}
         onClick={preview ? (e) => e.preventDefault() : undefined}
@@ -82,6 +89,7 @@ export function CompactPartnerCard({
       >
         <Info className="h-3.5 w-3.5 text-[var(--muted)]" />
       </Link>
+      </div>
     </article>
   );
 }
