@@ -149,13 +149,35 @@ export function HomeShell({
   }));
 
   const [headerMounted, setHeaderMounted] = useState(false);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
 
   useEffect(() => {
     setHeaderMounted(true);
   }, []);
 
+  useEffect(() => {
+    let frame = 0;
+
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        setHeaderScrolled(window.scrollY > 6);
+        frame = 0;
+      });
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
   const header = (
-    <header className="app-header-glass fixed inset-x-0 top-0 z-30 pt-[var(--safe-top)] backdrop-blur-[36px] bg-[var(--header-bg)]">
+    <header
+      className={`app-header-glass fixed inset-x-0 top-0 z-30 pt-[var(--safe-top)] bg-[var(--header-bg)] transition-[backdrop-filter,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${headerScrolled ? "backdrop-blur-[40px]" : "backdrop-blur-[28px]"}`}
+    >
       <HeaderActions
         searchPlaceholder={settings.searchPlaceholder}
         onOpenSearch={() => setSearchOpen(true)}
@@ -219,13 +241,15 @@ export function HomeShell({
             ))}
 
             {hasMoreAllPartners ? (
-              <button
-                type="button"
-                onClick={() => setShowAllPartners(true)}
-                className="w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] py-2.5 text-sm font-bold text-[var(--text)] transition-colors active:bg-[var(--surface-hover)]"
-              >
-                Показать больше
-              </button>
+              <div className="flex justify-center pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowAllPartners(true)}
+                  className="btn-outline-gold btn-outline-gold-play w-[min(100%,220px)] rounded-full px-6 py-2.5 text-sm font-bold"
+                >
+                  Показать больше
+                </button>
+              </div>
             ) : null}
           </section>
         ) : null}

@@ -2,6 +2,7 @@
 
 import { Check, Copy, Star } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CardScreenshotBackdrop } from "@/components/miniapp/CardScreenshotBackdrop";
 import { CheckItem } from "@/components/miniapp/CheckItem";
@@ -37,6 +38,7 @@ type CasinoGridCardProps = {
 };
 
 export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps) {
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const features = parseFeatures(partner.features).slice(0, 3);
@@ -45,6 +47,7 @@ export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps
   const hasScreenshot = Boolean(partner.cardScreenshotUrl);
 
   function openPartner(e: React.MouseEvent) {
+    e.stopPropagation();
     if (preview) {
       e.preventDefault();
       return;
@@ -54,6 +57,13 @@ export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps
     const tg = window.Telegram?.WebApp;
     if (tg) tg.openLink(partner.affiliateUrl);
     else window.open(partner.affiliateUrl, "_blank", "noopener,noreferrer");
+  }
+
+  function openPartnerDetail(e: React.MouseEvent<HTMLElement>) {
+    if (preview) return;
+    const target = e.target as HTMLElement;
+    if (target.closest("a, button")) return;
+    router.push(detailHref);
   }
 
   async function copyPromoCode(e: React.MouseEvent, code: string) {
@@ -71,7 +81,17 @@ export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps
   return (
     <>
       <article
-        className={`surface-card bonus-card relative flex flex-col overflow-hidden rounded-[var(--radius-lg)] p-3`}
+        className={`surface-card bonus-card relative flex cursor-pointer flex-col overflow-hidden rounded-[var(--radius-lg)] p-3`}
+        onClick={openPartnerDetail}
+        onKeyDown={(e) => {
+          if (preview) return;
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            router.push(detailHref);
+          }
+        }}
+        role={preview ? undefined : "link"}
+        tabIndex={preview ? undefined : 0}
       >
         {hasScreenshot ? (
           <CardScreenshotBackdrop url={partner.cardScreenshotUrl} />
@@ -98,7 +118,10 @@ export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps
             </div>
             <button
               type="button"
-              onClick={() => !preview && setReviewOpen(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!preview) setReviewOpen(true);
+              }}
               className="btn-outline-gold bonus-card-review-btn"
               tabIndex={preview ? -1 : undefined}
             >

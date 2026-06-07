@@ -19,7 +19,7 @@
   --shadow-color: rgba(16, 17, 18, 0.08);
   --featured-glow: rgba(247, 193, 7, 0.18);
   --icon-btn-bg: #ffffff;
-  --header-bg: color-mix(in srgb, var(--bg) 62%, transparent);
+  --header-bg: rgba(255, 255, 255, 0.06);
   --header-bar-height: 52px;
   --btn-outline: #101112;
   --btn-gold-bg: rgba(247, 193, 7, 0.16);
@@ -75,7 +75,7 @@
   --shadow-color: rgba(0, 0, 0, 0.35);
   --featured-glow: rgba(255, 215, 77, 0.12);
   --icon-btn-bg: rgba(255, 255, 255, 0.04);
-  --header-bg: color-mix(in srgb, var(--bg) 58%, transparent);
+  --header-bg: rgba(255, 255, 255, 0.05);
   --btn-outline: #ffd74d;
   --btn-gold-bg: #0c1424;
   --btn-gold-bg-top: #101a2e;
@@ -166,6 +166,9 @@ body {
 
 .app-header-glass {
   border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  transition:
+    backdrop-filter 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .header-bar {
@@ -174,7 +177,7 @@ body {
 }
 
 .app-main-below-header {
-  padding-top: calc(var(--safe-top) + var(--header-bar-height) + 0.5rem);
+  padding-top: calc(var(--safe-top) + var(--header-bar-height) + 1rem);
 }
 
 @media (min-width: 520px) {
