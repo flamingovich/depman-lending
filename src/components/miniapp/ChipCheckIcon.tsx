@@ -3,7 +3,7 @@
 import { useId } from "react";
 
 type ChipCheckIconProps = {
-  variant?: "red" | "gold";
+  variant?: "red" | "gold" | "green";
   size?: number;
   className?: string;
 };
@@ -22,6 +22,13 @@ const PALETTES = {
     face: "#DFA915",
     inner: "#9A7209",
     highlight: "#FFD54F",
+  },
+  green: {
+    shadow1: "#14532D",
+    shadow2: "#166534",
+    face: "#22C55E",
+    inner: "#15803D",
+    highlight: "#86EFAC",
   },
 } as const;
 

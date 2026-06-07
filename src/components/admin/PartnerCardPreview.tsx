@@ -36,7 +36,7 @@ export function PartnerCardPreview({ partner }: PartnerCardPreviewProps) {
             className={`rounded-md px-2.5 py-1 ${
               theme === "dark"
                 ? "bg-violet-600 text-white"
-                : "text-slate-400 hover:text-white"
+                : "text-slate-400"
             }`}
           >
             Тёмная
@@ -47,7 +47,7 @@ export function PartnerCardPreview({ partner }: PartnerCardPreviewProps) {
             className={`rounded-md px-2.5 py-1 ${
               theme === "light"
                 ? "bg-violet-600 text-white"
-                : "text-slate-400 hover:text-white"
+                : "text-slate-400"
             }`}
           >
             Светлая
@@ -60,11 +60,11 @@ export function PartnerCardPreview({ partner }: PartnerCardPreviewProps) {
         className="tma-shell tma-shell--static overflow-hidden rounded-xl border border-white/10 bg-[var(--bg)] py-2"
       >
         {partner.cardLayout === "compact" ? (
-          <div className="px-3">
+          <div className="tma-gutter-x">
             <CompactPartnerCard partner={previewPartner} preview />
           </div>
         ) : (
-          <section className="grid grid-cols-1 gap-2 px-3">
+          <section className="tma-gutter-x grid grid-cols-1 gap-2">
             <CasinoGridCard partner={previewPartner} preview />
           </section>
         )}

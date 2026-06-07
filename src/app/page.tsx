@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { HomeShell } from "@/components/miniapp/HomeShell";
 import { MiniAppShell } from "@/components/miniapp/MiniAppShell";
-import { getActivePartners, getSiteSettings } from "@/lib/data";
+import { getActivePartners, getActiveViewerWins, getSiteSettings } from "@/lib/data";
 
 type PageProps = {
   searchParams: Promise<{ q?: string }>;
@@ -9,9 +9,10 @@ type PageProps = {
 
 export default async function HomePage({ searchParams }: PageProps) {
   const { q } = await searchParams;
-  const [settings, partners] = await Promise.all([
+  const [settings, partners, viewerWins] = await Promise.all([
     getSiteSettings(),
     getActivePartners(q),
+    getActiveViewerWins(),
   ]);
 
   const serialized = partners.map((p) => ({
@@ -57,6 +58,21 @@ export default async function HomePage({ searchParams }: PageProps) {
             searchPlaceholder: settings.searchPlaceholder,
           }}
           partners={serialized}
+          viewerWins={viewerWins.map((win) => ({
+            id: win.id,
+            screenshotUrl: win.screenshotUrl,
+            cropX: win.cropX,
+            cropY: win.cropY,
+            cropWidth: win.cropWidth,
+            cropHeight: win.cropHeight,
+            telegramUserId: win.telegramUserId,
+            telegramUsername: win.telegramUsername,
+            telegramDisplayName: win.telegramDisplayName,
+            telegramPhotoUrl: win.telegramPhotoUrl,
+            winAmount: win.winAmount,
+            winMultiplier: win.winMultiplier,
+            partner: win.partner,
+          }))}
           initialQuery={q ?? ""}
         />
       </Suspense>

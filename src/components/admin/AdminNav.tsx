@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutGrid, Settings, LogOut, FolderKanban } from "lucide-react";
+import { LogOut, FolderKanban, LayoutGrid, Settings, Trophy } from "lucide-react";
 
 const links = [
   { href: "/admin", label: "Обзор", icon: LayoutGrid },
   { href: "/admin/partners", label: "Проекты", icon: FolderKanban },
+  { href: "/admin/viewer-wins", label: "Заносы", icon: Trophy },
   { href: "/admin/settings", label: "Настройки", icon: Settings },
 ];
 
@@ -22,7 +23,7 @@ export function AdminNav() {
 
   return (
     <aside className="w-full border-b border-white/10 bg-[#0e1a2d] lg:w-64 lg:min-h-screen lg:border-b-0 lg:border-r">
-      <div className="flex items-center justify-between px-5 py-4 lg:block">
+      <div className="flex items-center justify-between px-10 py-4 lg:block">
         <div>
           <p className="text-lg font-extrabold tracking-tight">DepMan Admin</p>
           <p className="text-xs text-slate-400">Управление партнёрами</p>
@@ -37,7 +38,7 @@ export function AdminNav() {
         </button>
       </div>
 
-      <nav className="flex gap-2 overflow-x-auto px-4 pb-4 lg:flex-col lg:px-3">
+      <nav className="flex gap-2 overflow-x-auto px-8 pb-4 lg:flex-col lg:px-6">
         {links.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/admin"
@@ -50,7 +51,7 @@ export function AdminNav() {
               className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold whitespace-nowrap ${
                 active
                   ? "bg-violet-600 text-white"
-                  : "bg-white/5 text-slate-300 lg:bg-transparent lg:text-slate-400 lg:hover:bg-white/5 lg:hover:text-white"
+                  : "bg-white/5 text-slate-300 lg:bg-transparent lg:text-slate-400"
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -61,7 +62,7 @@ export function AdminNav() {
         <Link
           href="/"
           target="_blank"
-          className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-400 lg:mt-2 lg:hover:text-white"
+          className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-400 lg:mt-2"
         >
           Открыть Mini App →
         </Link>

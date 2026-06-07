@@ -20,7 +20,7 @@ function readViewportWidth() {
 function applyViewport() {
   const width = readViewportWidth();
   const root = document.documentElement;
-  const gutter = Math.max(6, Math.min(10, Math.round(width * 0.018)));
+  const gutter = Math.max(12, Math.min(20, Math.round(width * 0.036)));
   const peek = Math.max(18, Math.min(28, Math.round(width * 0.065)));
   const fontSize = Math.min(
     18,

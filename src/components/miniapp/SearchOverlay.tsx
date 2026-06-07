@@ -54,7 +54,7 @@ export function SearchOverlay({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-[var(--bg)]">
-      <div className="px-4 pt-[calc(12px+var(--safe-top))] pb-4">
+      <div className="tma-gutter-x pt-[calc(12px+var(--safe-top))] pb-4">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-[var(--text)]">Поиск</h2>
@@ -84,7 +84,7 @@ export function SearchOverlay({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-8">
+      <div className="tma-gutter-x flex-1 overflow-y-auto pb-8">
         <div className="grid grid-cols-2 gap-2">
           {filtered.map((partner) => (
             <Link

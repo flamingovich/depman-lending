@@ -35,7 +35,7 @@ export function ShortLinkField({ slug }: ShortLinkFieldProps) {
           type="button"
           onClick={handleCopy}
           disabled={!shortLink}
-          className="shrink-0 rounded-xl border border-white/12 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/8 disabled:opacity-40"
+          className="shrink-0 rounded-xl border border-white/12 px-4 py-2 text-sm font-semibold text-slate-200 disabled:opacity-40"
         >
           {copied ? "Скопировано" : "Копировать"}
         </button>

@@ -31,7 +31,7 @@ export function CopyShortLinkButton({
       className={
         compact
           ? "admin-btn-secondary px-3 py-1.5 text-xs"
-          : "shrink-0 rounded-xl border border-white/12 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/8"
+          : "shrink-0 rounded-xl border border-white/12 px-4 py-2 text-sm font-semibold text-slate-200"
       }
     >
       {copied ? "Скопировано" : compact ? "Копировать ссылку" : "Копировать"}

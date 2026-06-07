@@ -64,8 +64,30 @@ model Partner {
   sortOrder   Int      @default(0)
   bonuses     Bonus[]
   reviews     Review[]
+  viewerWins  ViewerWin[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model ViewerWin {
+  id                  String   @id @default(cuid())
+  screenshotUrl       String
+  cropX               Float    @default(0)
+  cropY               Float    @default(0)
+  cropWidth           Float    @default(1)
+  cropHeight          Float    @default(0.5625)
+  partnerId           String
+  partner             Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  telegramUserId      String
+  telegramUsername    String?
+  telegramDisplayName String?
+  telegramPhotoUrl    String?
+  winAmount           String?
+  winMultiplier       String?
+  sortOrder           Int      @default(0)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model Review {

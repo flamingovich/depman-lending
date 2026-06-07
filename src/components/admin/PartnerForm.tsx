@@ -445,7 +445,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             <button
               type="button"
               onClick={addBonus}
-              className="rounded-xl bg-white/8 px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/12"
+              className="rounded-xl bg-white/8 px-3 py-2 text-sm font-semibold text-slate-200"
             >
               + Добавить бонус
             </button>

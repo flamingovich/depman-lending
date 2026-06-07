@@ -12,12 +12,13 @@ type PartnerLogoProps = {
   accentColor: string;
   variant?: "strip" | "grid" | "gridHeader" | "compact" | "detail";
   className?: string;
+  forceTheme?: "light" | "dark";
 };
 
 const LOGO_SIZES = {
   strip: { width: 64, height: 26 },
   grid: { width: 72, height: 28 },
-  gridHeader: { width: 64, height: 26 },
+  gridHeader: { width: 80, height: 32 },
   compact: { width: 72, height: 36 },
   detail: { width: 140, height: 44 },
 } as const;
@@ -30,12 +31,14 @@ export function PartnerLogo({
   accentColor,
   variant = "grid",
   className = "",
+  forceTheme,
 }: PartnerLogoProps) {
   const { theme } = useTheme();
   const { width, height } = LOGO_SIZES[variant];
+  const resolvedTheme = forceTheme ?? theme;
 
   const themedLogo = resolveLogoUrl(
-    theme === "dark"
+    resolvedTheme === "dark"
       ? logoDarkUrl || logoUrl
       : logoLightUrl || logoUrl,
   );

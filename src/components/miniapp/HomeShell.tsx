@@ -1,14 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams } from "next/navigation";
+import { Gift, Star } from "lucide-react";
 import { CasinoGridCard } from "@/components/miniapp/CasinoGridCard";
 import { CompactPartnerCard } from "@/components/miniapp/CompactPartnerCard";
 import { FeaturedCard } from "@/components/miniapp/FeaturedCard";
 import { FooterInfo } from "@/components/miniapp/FooterInfo";
 import { HeaderActions } from "@/components/miniapp/HeaderActions";
+import { HomeSectionTitle } from "@/components/miniapp/HomeSectionTitle";
 import { NewBonusesStrip } from "@/components/miniapp/NewBonusesStrip";
 import { SearchOverlay } from "@/components/miniapp/SearchOverlay";
+import { ViewerWinsStrip, type ViewerWinItem } from "@/components/miniapp/ViewerWinsStrip";
+import { ALL_PARTNERS_INITIAL } from "@/lib/home-blocks";
 import { isChannelKind } from "@/lib/partner-kind";
 
 export type HomePartner = {
@@ -51,6 +56,7 @@ type HomeShellProps = {
     searchPlaceholder: string;
   };
   partners: HomePartner[];
+  viewerWins: ViewerWinItem[];
   initialQuery?: string;
 };
 
@@ -68,20 +74,28 @@ function sortPartners(list: HomePartner[]) {
 export function HomeShell({
   settings,
   partners,
+  viewerWins,
   initialQuery = "",
 }: HomeShellProps) {
   const searchParams = useSearchParams();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [showAllPartners, setShowAllPartners] = useState(false);
+
+  const searchQuery = (initialQuery || searchParams.get("q") || "").trim();
+
+  useEffect(() => {
+    setShowAllPartners(false);
+  }, [searchQuery]);
 
   const filtered = useMemo(() => {
-    const q = (initialQuery || searchParams.get("q") || "").trim().toLowerCase();
+    const q = searchQuery.toLowerCase();
     if (!q) return partners;
     return partners.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         (p.description?.toLowerCase().includes(q) ?? false),
     );
-  }, [partners, initialQuery, searchParams]);
+  }, [partners, searchQuery]);
 
   const channels = useMemo(
     () => filtered.filter((p) => isChannelKind(p.kind)),
@@ -112,6 +126,15 @@ export function HomeShell({
   );
 
   const allPartners = useMemo(() => sortPartners(casinos), [casinos]);
+  const visibleAllPartners = useMemo(
+    () =>
+      showAllPartners
+        ? allPartners
+        : allPartners.slice(0, ALL_PARTNERS_INITIAL),
+    [allPartners, showAllPartners],
+  );
+  const hasMoreAllPartners =
+    allPartners.length > ALL_PARTNERS_INITIAL && !showAllPartners;
 
   const newStrip = topPartners.map((p) => ({
     id: p.id,
@@ -125,19 +148,26 @@ export function HomeShell({
     badge: p.badge,
   }));
 
+  const [headerMounted, setHeaderMounted] = useState(false);
+
+  useEffect(() => {
+    setHeaderMounted(true);
+  }, []);
+
+  const header = (
+    <header className="app-header-glass fixed inset-x-0 top-0 z-30 pt-[var(--safe-top)] backdrop-blur-[36px] bg-[var(--header-bg)]">
+      <HeaderActions
+        searchPlaceholder={settings.searchPlaceholder}
+        onOpenSearch={() => setSearchOpen(true)}
+      />
+    </header>
+  );
+
   return (
     <>
-      <header
-        className="sticky top-0 z-30 border-b border-[var(--border)] pt-[var(--safe-top)] backdrop-blur-xl"
-        style={{ background: "var(--header-bg)" }}
-      >
-        <HeaderActions
-          searchPlaceholder={settings.searchPlaceholder}
-          onOpenSearch={() => setSearchOpen(true)}
-        />
-      </header>
+      {headerMounted ? createPortal(header, document.body) : header}
 
-      <main className="tma-gutter-x space-y-3 overflow-visible pb-6 pt-2">
+      <main className="app-main-below-header tma-gutter-x space-y-3 overflow-visible pb-6">
         <NewBonusesStrip partners={newStrip} />
 
         {channelPromo ? (
@@ -159,16 +189,26 @@ export function HomeShell({
         ) : null}
 
         {bestPartners.length > 0 ? (
-          <section className="grid grid-cols-1 gap-2">
-            {bestPartners.map((partner) => (
-              <CasinoGridCard key={partner.id} partner={partner} />
-            ))}
+          <section className="space-y-1.5">
+            <HomeSectionTitle icon={Star} iconFilled>
+              Лучшие проекты 2026 года
+            </HomeSectionTitle>
+            <div className="grid grid-cols-1 gap-2">
+              {bestPartners.map((partner) => (
+                <CasinoGridCard key={partner.id} partner={partner} />
+              ))}
+            </div>
           </section>
         ) : null}
 
+        <ViewerWinsStrip wins={viewerWins} />
+
         {allPartners.length > 0 ? (
           <section className="space-y-1.5">
-            {allPartners.map((partner) => (
+            <HomeSectionTitle icon={Gift}>
+              Все проекты и бонусы
+            </HomeSectionTitle>
+            {visibleAllPartners.map((partner) => (
               <CompactPartnerCard
                 key={partner.id}
                 partner={{
@@ -177,6 +217,16 @@ export function HomeShell({
                 }}
               />
             ))}
+
+            {hasMoreAllPartners ? (
+              <button
+                type="button"
+                onClick={() => setShowAllPartners(true)}
+                className="w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] py-2.5 text-sm font-bold text-[var(--text)] transition-colors active:bg-[var(--surface-hover)]"
+              >
+                Показать больше
+              </button>
+            ) : null}
           </section>
         ) : null}
 
@@ -193,15 +243,17 @@ export function HomeShell({
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
         placeholder={settings.searchPlaceholder}
-        partners={partners.map((p) => ({
-          id: p.id,
-          slug: p.slug,
-          name: p.name,
-          logoUrl: p.logoUrl,
-          logoLightUrl: p.logoLightUrl,
-          logoDarkUrl: p.logoDarkUrl,
-          accentColor: p.accentColor,
-        }))}
+        partners={partners
+          .filter((p) => !isChannelKind(p.kind))
+          .map((p) => ({
+            id: p.id,
+            slug: p.slug,
+            name: p.name,
+            logoUrl: p.logoUrl,
+            logoLightUrl: p.logoLightUrl,
+            logoDarkUrl: p.logoDarkUrl,
+            accentColor: p.accentColor,
+          }))}
         initialQuery={initialQuery}
       />
     </>

@@ -39,6 +39,26 @@ export async function getActivePartners(query?: string) {
   return partners;
 }
 
+export async function getActiveViewerWins() {
+  return prisma.viewerWin.findMany({
+    where: { isActive: true },
+    include: {
+      partner: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          logoUrl: true,
+          logoLightUrl: true,
+          logoDarkUrl: true,
+          accentColor: true,
+        },
+      },
+    },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+  });
+}
+
 export async function getPartnerBySlug(slug: string) {
   return prisma.partner.findFirst({
     where: { slug, isActive: true },

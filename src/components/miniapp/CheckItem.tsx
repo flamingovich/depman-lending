@@ -3,7 +3,7 @@ import { ChipCheckIcon } from "@/components/miniapp/ChipCheckIcon";
 type CheckItemProps = {
   children: React.ReactNode;
   textOnDark?: boolean;
-  iconVariant?: "red" | "gold";
+  iconVariant?: "red" | "gold" | "green";
 };
 
 const ON_DARK_TEXT = { color: "#ffffff" } as const;

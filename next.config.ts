@@ -25,6 +25,9 @@ const nextConfig: NextConfig = {
       {
         pathname: "/images/**",
       },
+      {
+        pathname: "/uploads/telegram-avatars/**",
+      },
     ],
   },
   async rewrites() {
