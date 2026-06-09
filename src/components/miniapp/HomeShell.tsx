@@ -210,6 +210,8 @@ export function HomeShell({
           </div>
         ) : null}
 
+        <ViewerWinsStrip wins={viewerWins} />
+
         {bestPartners.length > 0 ? (
           <section className="space-y-1.5">
             <HomeSectionTitle icon={Star} iconFilled>
@@ -222,8 +224,6 @@ export function HomeShell({
             </div>
           </section>
         ) : null}
-
-        <ViewerWinsStrip wins={viewerWins} />
 
         {allPartners.length > 0 ? (
           <section className="space-y-1.5">

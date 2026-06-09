@@ -52,6 +52,7 @@ export async function getActiveViewerWins() {
           logoLightUrl: true,
           logoDarkUrl: true,
           accentColor: true,
+          affiliateUrl: true,
         },
       },
     },

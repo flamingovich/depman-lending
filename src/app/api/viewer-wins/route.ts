@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { revalidateViewerWinsPages } from "@/lib/revalidate-catalog";
-import { resolveViewerWinTelegram } from "@/lib/viewer-win-telegram";
+import { normalizeTelegramUsername } from "@/lib/telegram-url";
 
 const viewerWinSchema = z.object({
   screenshotUrl: z.string().min(1),
@@ -12,11 +12,13 @@ const viewerWinSchema = z.object({
   cropWidth: z.number().min(0.01).max(1).optional(),
   cropHeight: z.number().min(0.01).max(1).optional(),
   partnerId: z.string().min(1),
-  telegramUserId: z.string().regex(/^\d+$/, "Укажите числовой Telegram User ID"),
+  telegramDisplayName: z.string().min(1, "Укажите имя зрителя"),
+  telegramUsername: z.string().min(1, "Укажите Telegram username"),
   winAmount: z.string().optional(),
   winMultiplier: z.string().optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
+  isBigWin: z.boolean().optional(),
 });
 
 export async function GET() {
@@ -40,10 +42,10 @@ export async function POST(request: Request) {
   try {
     await requireSession();
     const body = viewerWinSchema.parse(await request.json());
-    const telegram = await resolveViewerWinTelegram(body.telegramUserId);
-    if (!telegram) {
+    const username = normalizeTelegramUsername(body.telegramUsername);
+    if (!username) {
       return NextResponse.json(
-        { error: "Не удалось получить профиль. Пользователь должен нажать /start в @portal_igroka_bot" },
+        { error: "Укажите корректный Telegram username" },
         { status: 400 },
       );
     }
@@ -63,14 +65,15 @@ export async function POST(request: Request) {
         cropWidth: body.cropWidth ?? 1,
         cropHeight: body.cropHeight ?? 0.5625,
         partnerId: body.partnerId,
-        telegramUserId: telegram.telegramUserId,
-        telegramUsername: telegram.telegramUsername,
-        telegramDisplayName: telegram.telegramDisplayName,
-        telegramPhotoUrl: telegram.telegramPhotoUrl,
+        telegramUserId: "",
+        telegramUsername: username,
+        telegramDisplayName: body.telegramDisplayName.trim(),
+        telegramPhotoUrl: null,
         winAmount: body.winAmount?.trim() || null,
         winMultiplier: body.winMultiplier?.trim() || null,
         sortOrder: body.sortOrder ?? 0,
         isActive: body.isActive ?? true,
+        isBigWin: body.isBigWin ?? false,
       },
       include: {
         partner: {

@@ -65,12 +65,11 @@ export default async function HomePage({ searchParams }: PageProps) {
             cropY: win.cropY,
             cropWidth: win.cropWidth,
             cropHeight: win.cropHeight,
-            telegramUserId: win.telegramUserId,
             telegramUsername: win.telegramUsername,
             telegramDisplayName: win.telegramDisplayName,
-            telegramPhotoUrl: win.telegramPhotoUrl,
             winAmount: win.winAmount,
             winMultiplier: win.winMultiplier,
+            isBigWin: win.isBigWin,
             partner: win.partner,
           }))}
           initialQuery={q ?? ""}

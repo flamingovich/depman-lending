@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { revalidateViewerWinsPages } from "@/lib/revalidate-catalog";
-import { resolveViewerWinTelegram } from "@/lib/viewer-win-telegram";
+import { normalizeTelegramUsername } from "@/lib/telegram-url";
 
 const viewerWinSchema = z.object({
   screenshotUrl: z.string().min(1).optional(),
@@ -12,11 +12,13 @@ const viewerWinSchema = z.object({
   cropWidth: z.number().min(0.01).max(1).optional(),
   cropHeight: z.number().min(0.01).max(1).optional(),
   partnerId: z.string().min(1).optional(),
-  telegramUserId: z.string().regex(/^\d+$/).optional(),
+  telegramDisplayName: z.string().min(1).optional(),
+  telegramUsername: z.string().min(1).optional(),
   winAmount: z.string().optional(),
   winMultiplier: z.string().optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
+  isBigWin: z.boolean().optional(),
 });
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -38,7 +40,6 @@ export async function PATCH(request: Request, context: RouteContext) {
       cropWidth?: number;
       cropHeight?: number;
       partnerId?: string;
-      telegramUserId?: string;
       telegramUsername?: string | null;
       telegramDisplayName?: string | null;
       telegramPhotoUrl?: string | null;
@@ -46,6 +47,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       winMultiplier?: string | null;
       sortOrder?: number;
       isActive?: boolean;
+      isBigWin?: boolean;
     } = {};
 
     if (body.screenshotUrl !== undefined) data.screenshotUrl = body.screenshotUrl;
@@ -62,18 +64,19 @@ export async function PATCH(request: Request, context: RouteContext) {
       }
       data.partnerId = body.partnerId;
     }
-    if (body.telegramUserId !== undefined) {
-      const telegram = await resolveViewerWinTelegram(body.telegramUserId);
-      if (!telegram) {
+    if (body.telegramDisplayName !== undefined) {
+      data.telegramDisplayName = body.telegramDisplayName.trim();
+    }
+    if (body.telegramUsername !== undefined) {
+      const username = normalizeTelegramUsername(body.telegramUsername);
+      if (!username) {
         return NextResponse.json(
-          { error: "Не удалось получить профиль. Пользователь должен нажать /start в @portal_igroka_bot" },
+          { error: "Укажите корректный Telegram username" },
           { status: 400 },
         );
       }
-      data.telegramUserId = telegram.telegramUserId;
-      data.telegramUsername = telegram.telegramUsername;
-      data.telegramDisplayName = telegram.telegramDisplayName;
-      data.telegramPhotoUrl = telegram.telegramPhotoUrl;
+      data.telegramUsername = username;
+      data.telegramPhotoUrl = null;
     }
     if (body.winAmount !== undefined) data.winAmount = body.winAmount.trim() || null;
     if (body.winMultiplier !== undefined) {
@@ -81,6 +84,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
     if (body.sortOrder !== undefined) data.sortOrder = body.sortOrder;
     if (body.isActive !== undefined) data.isActive = body.isActive;
+    if (body.isBigWin !== undefined) data.isBigWin = body.isBigWin;
 
     const win = await prisma.viewerWin.update({
       where: { id },

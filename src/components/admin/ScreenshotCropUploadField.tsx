@@ -1,11 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Minus, Plus } from "lucide-react";
+import { CroppedScreenshot } from "@/components/shared/CroppedScreenshot";
 import { resolveLogoUrl } from "@/lib/logo-url";
 import {
+  applyCropZoom,
   clampCrop,
+  cropToOverlayPixels,
+  cropZoomLevel,
   defaultCrop16x9,
+  getObjectContainLayout,
+  MAX_CROP_ZOOM,
+  MIN_CROP_ZOOM,
+  reconcileCrop,
   type CropRect,
+  type ImageLayout,
   DEFAULT_CROP,
 } from "@/lib/image-crop";
 
@@ -54,30 +64,52 @@ export function ScreenshotCropUploadField({
     null,
   );
   const pendingCropReset = useRef(false);
+  const reconciledSrc = useRef<string | null>(null);
 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [pasteFocused, setPasteFocused] = useState(false);
-  const [frameSize, setFrameSize] = useState({ width: 0, height: 0 });
+  const [imageLayout, setImageLayout] = useState<ImageLayout | null>(null);
+  const [zoom, setZoom] = useState(MIN_CROP_ZOOM);
 
   const previewSrc = value ? resolveLogoUrl(value) : null;
 
-  const measureFrame = useCallback(() => {
+  const measureLayout = useCallback(() => {
     const frame = frameRef.current;
-    if (!frame) return;
-    setFrameSize({ width: frame.clientWidth, height: frame.clientHeight });
+    const img = imageRef.current;
+    if (!frame || !img?.naturalWidth || !img.naturalHeight) return;
+
+    setImageLayout(
+      getObjectContainLayout(
+        frame.clientWidth,
+        frame.clientHeight,
+        img.naturalWidth,
+        img.naturalHeight,
+      ),
+    );
   }, []);
 
   useEffect(() => {
-    if (!previewSrc) return;
+    if (!previewSrc) {
+      setImageLayout(null);
+      reconciledSrc.current = null;
+      return;
+    }
+
     const frame = frameRef.current;
     if (!frame) return;
 
-    measureFrame();
-    const observer = new ResizeObserver(measureFrame);
+    measureLayout();
+    const observer = new ResizeObserver(measureLayout);
     observer.observe(frame);
     return () => observer.disconnect();
-  }, [previewSrc, measureFrame]);
+  }, [previewSrc, measureLayout]);
+
+  useEffect(() => {
+    const img = imageRef.current;
+    if (!img?.naturalWidth || !img.naturalHeight) return;
+    setZoom(cropZoomLevel(crop, img.naturalWidth, img.naturalHeight));
+  }, [crop, previewSrc]);
 
   const handleFile = useCallback(
     async (file: File) => {
@@ -100,6 +132,7 @@ export function ScreenshotCropUploadField({
 
         if (data.url) {
           pendingCropReset.current = true;
+          reconciledSrc.current = null;
           onChange(data.url);
         }
       } catch {
@@ -108,21 +141,39 @@ export function ScreenshotCropUploadField({
         setUploading(false);
       }
     },
-    [onChange, onCropChange],
+    [onChange],
   );
 
   function handleImageLoad() {
     const img = imageRef.current;
-    if (!img) return;
+    if (!img?.naturalWidth || !img.naturalHeight) return;
+
     if (pendingCropReset.current) {
       pendingCropReset.current = false;
-      onCropChange(defaultCrop16x9(img.naturalWidth, img.naturalHeight));
+      const next = defaultCrop16x9(img.naturalWidth, img.naturalHeight);
+      onCropChange(next);
+      setZoom(MIN_CROP_ZOOM);
+      reconciledSrc.current = previewSrc;
+    } else if (previewSrc && reconciledSrc.current !== previewSrc) {
+      const next = reconcileCrop(crop, img.naturalWidth, img.naturalHeight);
+      onCropChange(next);
+      setZoom(cropZoomLevel(next, img.naturalWidth, img.naturalHeight));
+      reconciledSrc.current = previewSrc;
     }
-    measureFrame();
+
+    measureLayout();
+  }
+
+  function changeZoom(nextZoom: number) {
+    const img = imageRef.current;
+    if (!img?.naturalWidth || !img.naturalHeight) return;
+    const clamped = Math.min(MAX_CROP_ZOOM, Math.max(MIN_CROP_ZOOM, nextZoom));
+    onCropChange(applyCropZoom(crop, img.naturalWidth, img.naturalHeight, clamped));
+    setZoom(clamped);
   }
 
   function pointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if (!frameSize.width || !frameSize.height) return;
+    if (!imageLayout) return;
 
     event.preventDefault();
     dragRef.current = {
@@ -136,10 +187,10 @@ export function ScreenshotCropUploadField({
 
   function pointerMove(event: React.PointerEvent<HTMLDivElement>) {
     const drag = dragRef.current;
-    if (!drag || !frameSize.width || !frameSize.height) return;
+    if (!drag || !imageLayout) return;
 
-    const dx = (event.clientX - drag.startX) / frameSize.width;
-    const dy = (event.clientY - drag.startY) / frameSize.height;
+    const dx = (event.clientX - drag.startX) / imageLayout.width;
+    const dy = (event.clientY - drag.startY) / imageLayout.height;
 
     onCropChange(
       clampCrop({
@@ -195,15 +246,8 @@ export function ScreenshotCropUploadField({
     void handleFile(file);
   }
 
-  const cropStyle =
-    frameSize.width && frameSize.height
-      ? {
-          left: `${crop.x * 100}%`,
-          top: `${crop.y * 100}%`,
-          width: `${crop.w * 100}%`,
-          height: `${crop.h * 100}%`,
-        }
-      : undefined;
+  const cropOverlay =
+    imageLayout ? cropToOverlayPixels(crop, imageLayout) : null;
 
   return (
     <div className="space-y-2 md:col-span-2">
@@ -258,6 +302,9 @@ export function ScreenshotCropUploadField({
                 onChange("");
                 onCropChange(DEFAULT_CROP);
                 setUploadError(null);
+                setImageLayout(null);
+                setZoom(MIN_CROP_ZOOM);
+                reconciledSrc.current = null;
               }}
               className="w-fit px-4 py-2 text-sm font-medium text-red-400"
             >
@@ -273,29 +320,79 @@ export function ScreenshotCropUploadField({
             </p>
             <div
               ref={frameRef}
-              className="relative mx-auto max-w-full overflow-hidden rounded-xl border border-white/10 bg-[#050e1c]"
-              style={{ maxHeight: 420 }}
+              className="relative mx-auto w-fit max-w-full overflow-hidden rounded-xl border border-white/10 bg-[#050e1c]"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 ref={imageRef}
                 src={previewSrc}
                 alt=""
-                className="block max-h-[420px] w-full select-none object-contain"
+                className="block max-h-[420px] w-auto max-w-full select-none"
                 draggable={false}
                 onLoad={handleImageLoad}
               />
 
-              <div
-                className="absolute cursor-move touch-none border-2 border-violet-400 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]"
-                style={cropStyle}
-                onPointerDown={pointerDown}
-                onPointerMove={pointerMove}
-                onPointerUp={pointerUp}
-                onPointerCancel={pointerUp}
+              {cropOverlay ? (
+                <div
+                  className="absolute cursor-move touch-none border-2 border-violet-400 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]"
+                  style={{
+                    left: cropOverlay.left,
+                    top: cropOverlay.top,
+                    width: cropOverlay.width,
+                    height: cropOverlay.height,
+                  }}
+                  onPointerDown={pointerDown}
+                  onPointerMove={pointerMove}
+                  onPointerUp={pointerUp}
+                  onPointerCancel={pointerUp}
+                >
+                  <div className="pointer-events-none absolute inset-0 border border-white/70" />
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-xs text-slate-500">Масштаб</span>
+              <button
+                type="button"
+                onClick={() => changeZoom(zoom - 0.25)}
+                disabled={zoom <= MIN_CROP_ZOOM}
+                className="admin-btn-secondary flex h-8 w-8 items-center justify-center disabled:opacity-40"
+                aria-label="Отдалить"
               >
-                <div className="pointer-events-none absolute inset-0 border border-white/70" />
-              </div>
+                <Minus className="h-4 w-4" />
+              </button>
+              <input
+                type="range"
+                min={MIN_CROP_ZOOM}
+                max={MAX_CROP_ZOOM}
+                step={0.05}
+                value={zoom}
+                onChange={(e) => changeZoom(Number(e.target.value))}
+                className="h-1.5 w-36 cursor-pointer accent-violet-500"
+                aria-label="Масштаб кропа"
+              />
+              <button
+                type="button"
+                onClick={() => changeZoom(zoom + 0.25)}
+                disabled={zoom >= MAX_CROP_ZOOM}
+                className="admin-btn-secondary flex h-8 w-8 items-center justify-center disabled:opacity-40"
+                aria-label="Приблизить"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+              <span className="min-w-[3ch] text-xs font-semibold text-slate-300">
+                {zoom.toFixed(1)}×
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs text-slate-500">Так будет на главной</p>
+              <CroppedScreenshot
+                src={previewSrc}
+                crop={crop}
+                className="w-full max-w-sm rounded-lg border border-white/10"
+              />
             </div>
           </div>
         ) : (

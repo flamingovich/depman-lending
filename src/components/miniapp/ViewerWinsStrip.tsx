@@ -7,12 +7,10 @@ import {
   useRef,
   useState,
 } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Trophy } from "lucide-react";
 import { CroppedScreenshot } from "@/components/shared/CroppedScreenshot";
 import { HomeSectionTitle } from "@/components/miniapp/HomeSectionTitle";
-import { PartnerLogo } from "@/components/miniapp/PartnerLogo";
 import {
   formatWinAmount,
   formatWinMultiplier,
@@ -20,8 +18,8 @@ import {
 } from "@/lib/image-crop";
 import { resolveLogoUrl } from "@/lib/logo-url";
 import {
-  telegramContactUrl,
   telegramDisplayName,
+  telegramProfileUrl,
 } from "@/lib/telegram-url";
 
 export type ViewerWinItem = {
@@ -31,12 +29,11 @@ export type ViewerWinItem = {
   cropY: number;
   cropWidth: number;
   cropHeight: number;
-  telegramUserId: string;
   telegramUsername?: string | null;
   telegramDisplayName?: string | null;
-  telegramPhotoUrl?: string | null;
   winAmount?: string | null;
   winMultiplier?: string | null;
+  isBigWin?: boolean;
   partner: {
     id: string;
     slug: string;
@@ -45,6 +42,7 @@ export type ViewerWinItem = {
     logoLightUrl?: string | null;
     logoDarkUrl?: string | null;
     accentColor: string;
+    affiliateUrl?: string | null;
   };
 };
 
@@ -66,6 +64,7 @@ function winCrop(win: ViewerWinItem): CropRect {
 }
 
 export function ViewerWinsStrip({ wins }: ViewerWinsStripProps) {
+  const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -159,18 +158,27 @@ export function ViewerWinsStrip({ wins }: ViewerWinsStripProps) {
     };
   }, [maxIndex, step]);
 
-  function openTelegram(
-    e: React.MouseEvent,
-    userId: string,
-    username?: string | null,
-  ) {
+  function openTelegramProfile(e: React.MouseEvent, username: string) {
     e.preventDefault();
     e.stopPropagation();
-    const url = telegramContactUrl(userId, username);
+    const url = telegramProfileUrl(username);
     if (!url) return;
     const tg = window.Telegram?.WebApp;
     if (tg) tg.openLink(url);
     else window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  function openPartnerDetail(slug: string) {
+    router.push(`/partner/${slug}`);
+  }
+
+  function openAffiliate(e: React.MouseEvent, affiliateUrl?: string | null) {
+    if (!affiliateUrl) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const tg = window.Telegram?.WebApp;
+    if (tg) tg.openLink(affiliateUrl);
+    else window.open(affiliateUrl, "_blank", "noopener,noreferrer");
   }
 
   if (wins.length === 0) return null;
@@ -189,9 +197,6 @@ export function ViewerWinsStrip({ wins }: ViewerWinsStripProps) {
         <div className="viewer-wins-carousel-track flex gap-2.5">
           {wins.map((win) => {
             const screenshotSrc = resolveLogoUrl(win.screenshotUrl);
-            const avatarSrc = win.telegramPhotoUrl
-              ? resolveLogoUrl(win.telegramPhotoUrl) ?? win.telegramPhotoUrl
-              : null;
             const crop = winCrop(win);
             const amount = formatWinAmount(win.winAmount);
             const multiplier = formatWinMultiplier(win.winMultiplier);
@@ -202,96 +207,81 @@ export function ViewerWinsStrip({ wins }: ViewerWinsStripProps) {
             return (
               <article
                 key={win.id}
-                className="viewer-win-card relative flex shrink-0 snap-start flex-col overflow-hidden"
+                className={`viewer-win-card relative flex shrink-0 snap-start flex-col overflow-hidden${
+                  win.isBigWin ? " viewer-win-card--big" : " viewer-win-card--regular"
+                }`}
               >
-                <div className="viewer-win-shot relative">
-                  {screenshotSrc ? (
-                    <CroppedScreenshot
-                      src={screenshotSrc}
-                      crop={crop}
-                      alt="Занос зрителя"
-                      className="h-full w-full"
-                      draggable={false}
-                    />
-                  ) : (
-                    <div className="flex aspect-[16/9] w-full items-center justify-center bg-[var(--surface-muted)] text-[10px] text-[var(--muted)]">
-                      Скриншот
-                    </div>
-                  )}
-
-                  <div aria-hidden className="viewer-win-shot-glow pointer-events-none" />
-
-                  <div className="viewer-win-shot-bar absolute left-0 top-0 z-[2]">
-                    <div className="viewer-win-shot-logo relative min-w-0">
-                      <PartnerLogo
-                        name={win.partner.name}
-                        logoUrl={win.partner.logoUrl}
-                        logoLightUrl={win.partner.logoLightUrl}
-                        logoDarkUrl={win.partner.logoDarkUrl}
-                        accentColor={win.partner.accentColor}
-                        variant="strip"
-                        forceTheme="dark"
+                <div
+                  className="viewer-win-card-link flex min-h-0 flex-1 cursor-pointer flex-col"
+                  onClick={() => openPartnerDetail(win.partner.slug)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openPartnerDetail(win.partner.slug);
+                    }
+                  }}
+                  role="link"
+                  tabIndex={0}
+                >
+                  <div className="viewer-win-shot relative">
+                    {screenshotSrc ? (
+                      <CroppedScreenshot
+                        src={screenshotSrc}
+                        crop={crop}
+                        alt="Занос зрителя"
+                        className="h-full w-full"
                       />
-                    </div>
+                    ) : (
+                      <div className="flex aspect-[16/9] w-full items-center justify-center bg-[var(--surface-muted)] text-[10px] text-[var(--muted)]">
+                        Скриншот
+                      </div>
+                    )}
+
+                    {multiplier ? (
+                      <div
+                        className={`viewer-win-shot-multiplier${
+                          win.isBigWin
+                            ? " viewer-win-shot-multiplier--big"
+                            : " viewer-win-shot-multiplier--regular"
+                        }`}
+                      >
+                        <span>{multiplier}</span>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="viewer-win-body flex flex-col gap-1 px-2.5 pb-1 pt-2">
+                    {usernameLabel && win.telegramUsername ? (
+                      <p className="viewer-win-caption min-w-0 truncate text-[11px] leading-tight">
+                        <a
+                          href={telegramProfileUrl(win.telegramUsername)}
+                          onClick={(e) => openTelegramProfile(e, win.telegramUsername!)}
+                          className="viewer-win-username font-normal"
+                        >
+                          {usernameLabel}
+                        </a>
+                        <span className="font-medium"> занёс</span>
+                      </p>
+                    ) : null}
+
+                    {amount ? (
+                      <p className="viewer-win-amount truncate font-extrabold tracking-tight">
+                        {amount}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
 
-                <div className="viewer-win-body flex flex-col gap-2.5 p-2.5">
-                  <button
-                    type="button"
-                    onClick={(e) =>
-                      openTelegram(e, win.telegramUserId, win.telegramUsername)
-                    }
-                    className="viewer-win-telegram flex min-w-0 items-start gap-2 text-left"
-                  >
-                    {avatarSrc ? (
-                      <Image
-                        src={avatarSrc}
-                        alt=""
-                        width={28}
-                        height={28}
-                        className="viewer-win-avatar h-7 w-7 shrink-0 rounded-full object-cover"
-                        draggable={false}
-                      />
-                    ) : (
-                      <span className="viewer-win-avatar flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--surface-muted)] text-[10px] font-bold text-[var(--muted)]">
-                        ?
-                      </span>
-                    )}
-                    <span className="min-w-0 flex-1">
-                      {win.telegramDisplayName ? (
-                        <span className="block truncate text-xs font-semibold leading-tight text-[var(--text)]">
-                          {win.telegramDisplayName}
-                        </span>
-                      ) : null}
-                      {usernameLabel ? (
-                        <span className="block truncate text-[11px] font-bold leading-tight text-[var(--accent-dark)]">
-                          {usernameLabel}
-                        </span>
-                      ) : null}
-                    </span>
-                  </button>
-
-                  {amount || multiplier ? (
-                    <p className="viewer-win-payout truncate text-xs font-extrabold tracking-tight text-[var(--text)]">
-                      {amount ? <span>{amount}</span> : null}
-                      {amount && multiplier ? (
-                        <span className="mx-1.5 font-semibold text-[var(--muted)]">/</span>
-                      ) : null}
-                      {multiplier ? (
-                        <span className="text-[var(--accent-dark)]">{multiplier}</span>
-                      ) : null}
-                    </p>
-                  ) : null}
-
-                  <Link
-                    href={`/partner/${win.partner.slug}`}
-                    className="viewer-win-go-btn btn-outline-gold btn-outline-gold-play mt-auto flex w-full items-center justify-center rounded-full py-2"
+                <div className="px-2.5 pb-2 pt-0">
+                  <a
+                    href={win.partner.affiliateUrl ?? `/partner/${win.partner.slug}`}
+                    onClick={(e) => openAffiliate(e, win.partner.affiliateUrl)}
+                    className="viewer-win-go-btn btn-outline-gold btn-outline-gold-play flex w-full items-center justify-center rounded-full py-2"
                     title={`Перейти на ${win.partner.name}`}
                     draggable={false}
                   >
                     Перейти на {win.partner.name}
-                  </Link>
+                  </a>
                 </div>
               </article>
             );

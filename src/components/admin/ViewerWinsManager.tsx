@@ -30,6 +30,7 @@ type ViewerWinRow = {
   winMultiplier?: string | null;
   sortOrder: number;
   isActive: boolean;
+  isBigWin: boolean;
   partner: PartnerOption;
 };
 
@@ -37,11 +38,13 @@ type ViewerWinForm = {
   screenshotUrl: string;
   crop: CropRect;
   partnerId: string;
-  telegramUserId: string;
+  telegramDisplayName: string;
+  telegramUsername: string;
   winAmount: string;
   winMultiplier: string;
   sortOrder: number;
   isActive: boolean;
+  isBigWin: boolean;
 };
 
 type ViewerWinsManagerProps = {
@@ -53,11 +56,13 @@ const emptyForm = (partners: PartnerOption[]): ViewerWinForm => ({
   screenshotUrl: "",
   crop: DEFAULT_CROP,
   partnerId: partners[0]?.id ?? "",
-  telegramUserId: "",
+  telegramDisplayName: "",
+  telegramUsername: "",
   winAmount: "",
   winMultiplier: "",
   sortOrder: 0,
   isActive: true,
+  isBigWin: false,
 });
 
 function rowCrop(win: ViewerWinRow): CropRect {
@@ -93,11 +98,13 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
       screenshotUrl: win.screenshotUrl,
       crop: rowCrop(win),
       partnerId: win.partnerId,
-      telegramUserId: win.telegramUserId,
+      telegramDisplayName: win.telegramDisplayName ?? "",
+      telegramUsername: win.telegramUsername ?? "",
       winAmount: win.winAmount ?? "",
       winMultiplier: win.winMultiplier?.replace(/^x/i, "") ?? "",
       sortOrder: win.sortOrder,
       isActive: win.isActive,
+      isBigWin: win.isBigWin,
     });
     setError(null);
   }
@@ -113,11 +120,13 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
         cropWidth: form.crop.w,
         cropHeight: form.crop.h,
         partnerId: form.partnerId,
-        telegramUserId: form.telegramUserId.trim(),
+        telegramDisplayName: form.telegramDisplayName.trim(),
+        telegramUsername: form.telegramUsername.trim(),
         winAmount: form.winAmount.trim(),
         winMultiplier: form.winMultiplier.trim(),
         sortOrder: Number(form.sortOrder) || 0,
         isActive: form.isActive,
+        isBigWin: form.isBigWin,
       };
 
       const res = await fetch(
@@ -200,7 +209,8 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
 
   const canSave =
     form.screenshotUrl &&
-    /^\d+$/.test(form.telegramUserId.trim()) &&
+    form.telegramDisplayName.trim() &&
+    form.telegramUsername.trim() &&
     form.winAmount.trim() &&
     form.winMultiplier.trim();
 
@@ -212,7 +222,7 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
             {editingId ? "Редактировать занос" : "Новый занос"}
           </h2>
           <p className="text-sm text-slate-400">
-            Скриншот с кропом 16:9, проект, сумма выигрыша и Telegram User ID зрителя
+            Скриншот с кропом 16:9, проект, сумма выигрыша, имя и username зрителя
           </p>
         </div>
 
@@ -242,19 +252,27 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
           </label>
 
           <label className="block space-y-1">
-            <span className="text-sm font-semibold">Telegram User ID</span>
+            <span className="text-sm font-semibold">Имя зрителя</span>
             <input
-              value={form.telegramUserId}
+              value={form.telegramDisplayName}
               onChange={(e) =>
-                setForm({ ...form, telegramUserId: e.target.value.replace(/\D/g, "") })
+                setForm({ ...form, telegramDisplayName: e.target.value })
               }
               className="w-full rounded-xl border border-white/10 bg-[#162236] px-3 py-2"
-              placeholder="123456789"
-              inputMode="numeric"
+              placeholder="Тимур"
+            />
+          </label>
+
+          <label className="block space-y-1">
+            <span className="text-sm font-semibold">Telegram username</span>
+            <input
+              value={form.telegramUsername}
+              onChange={(e) => setForm({ ...form, telegramUsername: e.target.value })}
+              className="w-full rounded-xl border border-white/10 bg-[#162236] px-3 py-2"
+              placeholder="@ppgchz"
             />
             <span className="text-xs text-slate-500">
-              Пользователь должен нажать /start в @portal_igroka_bot. Имя, @username и
-              аватар подтянутся автоматически (TELEGRAM_BOT_TOKEN в .env).
+              По клику на @username откроется профиль в Telegram.
             </span>
           </label>
 
@@ -300,6 +318,15 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
             onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
           />
           Показывать на главной
+        </label>
+
+        <label className="inline-flex items-center gap-2 text-sm font-semibold">
+          <input
+            type="checkbox"
+            checked={form.isBigWin}
+            onChange={(e) => setForm({ ...form, isBigWin: e.target.checked })}
+          />
+          Жирный занос
         </label>
 
         {error ? <p className="text-sm text-red-400">{error}</p> : null}
@@ -359,25 +386,15 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
                     <p className="font-bold">{win.partner.name}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      {win.telegramPhotoUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={win.telegramPhotoUrl}
-                          alt=""
-                          className="h-6 w-6 rounded-full object-cover"
-                        />
+                    <div className="min-w-0">
+                      {win.telegramDisplayName ? (
+                        <p className="truncate font-semibold">{win.telegramDisplayName}</p>
                       ) : null}
-                      <div className="min-w-0">
-                        {win.telegramDisplayName ? (
-                          <p className="truncate font-semibold">{win.telegramDisplayName}</p>
-                        ) : null}
-                        <p className="truncate text-xs text-slate-400">
-                          {win.telegramUsername
-                            ? telegramDisplayName(win.telegramUsername)
-                            : `ID ${win.telegramUserId}`}
-                        </p>
-                      </div>
+                      <p className="truncate text-xs text-slate-400">
+                        {win.telegramUsername
+                          ? telegramDisplayName(win.telegramUsername)
+                          : "—"}
+                      </p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -390,15 +407,22 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    {win.isActive ? (
-                      <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-400">
-                        Активен
-                      </span>
-                    ) : (
-                      <span className="rounded-md bg-white/8 px-2 py-0.5 text-xs font-semibold text-slate-400">
-                        Скрыт
-                      </span>
-                    )}
+                    <div className="flex flex-wrap gap-1">
+                      {win.isActive ? (
+                        <span className="rounded-md bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-400">
+                          Активен
+                        </span>
+                      ) : (
+                        <span className="rounded-md bg-white/8 px-2 py-0.5 text-xs font-semibold text-slate-400">
+                          Скрыт
+                        </span>
+                      )}
+                      {win.isBigWin ? (
+                        <span className="rounded-md bg-amber-500/15 px-2 py-0.5 text-xs font-semibold text-amber-300">
+                          Жирный
+                        </span>
+                      ) : null}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap items-center gap-2">
