@@ -27,6 +27,7 @@ model SiteSettings {
   bottomBarRating   Float   @default(5.0)
   bottomBarCtaText  String  @default("Открыть")
   telegramBotUrl    String?
+  pinnedPartnerId   String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
@@ -42,6 +43,7 @@ model Partner {
   bannerUrl   String?
   personImageUrl String?
   cardScreenshotUrl String?
+  featuredCoinImageUrl String?
   badge       String?
   rating      Float    @default(5.0)
   accentColor String   @default("#b8ff3c")
@@ -84,6 +86,7 @@ model ViewerWin {
   telegramPhotoUrl    String?
   winAmount           String?
   winMultiplier       String?
+  slotName            String?
   sortOrder           Int      @default(0)
   isActive            Boolean  @default(true)
   isBigWin            Boolean  @default(false)

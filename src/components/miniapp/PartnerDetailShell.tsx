@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Check, Copy, Moon, Sun } from "lucide-react";
+import { ArrowLeft, Check, Copy, Moon, Play, Sun } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useTheme } from "@/components/theme/ThemeProvider";
@@ -172,8 +172,9 @@ export function PartnerDetailShell({ partner }: PartnerDetailShellProps) {
             <button
               type="button"
               onClick={openPartner}
-              className="btn-outline-gold btn-outline-gold-play mt-auto flex w-full items-center justify-center rounded-full py-2.5"
+              className="btn-outline-gold btn-outline-gold-play mt-auto inline-flex w-full items-center justify-center gap-1.5 rounded-full py-2.5"
             >
+              <Play className="size-3 shrink-0 fill-current" aria-hidden />
               Играть на {partner.name}
             </button>
           ) : null}

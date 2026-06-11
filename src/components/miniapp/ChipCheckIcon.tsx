@@ -4,6 +4,7 @@ import { useId } from "react";
 
 type ChipCheckIconProps = {
   variant?: "red" | "gold" | "green";
+  accentColor?: string;
   size?: number;
   className?: string;
 };
@@ -32,13 +33,40 @@ const PALETTES = {
   },
 } as const;
 
+function mixHex(hex: string, mix: number, target: "black" | "white") {
+  const normalized = hex.replace("#", "");
+  if (normalized.length !== 6) return hex;
+
+  const r = Number.parseInt(normalized.slice(0, 2), 16);
+  const g = Number.parseInt(normalized.slice(2, 4), 16);
+  const b = Number.parseInt(normalized.slice(4, 6), 16);
+  const mixChannel = (channel: number) =>
+    Math.round(
+      target === "black" ? channel * (1 - mix) : channel + (255 - channel) * mix,
+    );
+
+  const toHex = (channel: number) => channel.toString(16).padStart(2, "0");
+  return `#${toHex(mixChannel(r))}${toHex(mixChannel(g))}${toHex(mixChannel(b))}`;
+}
+
+function buildAccentPalette(color: string) {
+  return {
+    shadow1: mixHex(color, 0.45, "black"),
+    shadow2: mixHex(color, 0.3, "black"),
+    face: color,
+    inner: mixHex(color, 0.22, "black"),
+    highlight: mixHex(color, 0.35, "white"),
+  };
+}
+
 export function ChipCheckIcon({
   variant = "gold",
+  accentColor,
   size = 14,
   className = "",
 }: ChipCheckIconProps) {
   const uid = useId().replace(/:/g, "");
-  const c = PALETTES[variant];
+  const c = accentColor ? buildAccentPalette(accentColor) : PALETTES[variant];
 
   return (
     <svg

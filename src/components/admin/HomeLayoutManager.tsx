@@ -27,6 +27,7 @@ type LayoutState = {
 
 type HomeLayoutManagerProps = {
   partners: LayoutPartner[];
+  pinnedPartnerId: string | null;
 };
 
 function buildLayoutState(partners: LayoutPartner[]): LayoutState {
@@ -59,10 +60,14 @@ function serializeLayout(state: LayoutState): LayoutPartner[] {
   }));
 }
 
-export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
+export function HomeLayoutManager({
+  partners,
+  pinnedPartnerId,
+}: HomeLayoutManagerProps) {
   const router = useRouter();
   const initial = useMemo(() => buildLayoutState(partners), [partners]);
   const [state, setState] = useState<LayoutState>(initial);
+  const [pinnedId, setPinnedId] = useState(pinnedPartnerId ?? "");
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,10 +75,11 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
 
   const isDirty = useMemo(() => {
     return (
+      pinnedId !== (pinnedPartnerId ?? "") ||
       JSON.stringify(serializeLayout(state)) !==
-      JSON.stringify(serializeLayout(initial))
+        JSON.stringify(serializeLayout(initial))
     );
-  }, [state, initial]);
+  }, [state, initial, pinnedId, pinnedPartnerId]);
 
   function addToTop(partnerId: string) {
     setState((prev) => {
@@ -165,6 +171,18 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
       if (!res.ok) {
         const data = (await res.json()) as { error?: string };
         throw new Error(data.error ?? "Не удалось сохранить");
+      }
+
+      const settingsRes = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pinnedPartnerId: pinnedId || null,
+        }),
+      });
+
+      if (!settingsRes.ok) {
+        throw new Error("Не удалось сохранить закреплённый проект");
       }
 
       setSaved(true);
@@ -270,6 +288,31 @@ export function HomeLayoutManager({ partners }: HomeLayoutManagerProps) {
           Раскладка сохранена
         </p>
       ) : null}
+
+      <section className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+        <h3 className="text-sm font-bold text-slate-100">Закреплённый проект</h3>
+        <p className="mt-1 text-xs text-slate-400">
+          Баннер сверху на главной: лого, бонусы, скрин на фоне и фото справа.
+        </p>
+        <label className="mt-3 block space-y-1">
+          <span className="text-xs font-semibold text-slate-400">Проект</span>
+          <select
+            value={pinnedId}
+            onChange={(e) => {
+              setPinnedId(e.target.value);
+              setSaved(false);
+            }}
+            className="admin-input"
+          >
+            <option value="">Не показывать</option>
+            {state.all.map((partner) => (
+              <option key={partner.id} value={partner.id}>
+                {partner.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
 
       <div className="grid gap-3 lg:grid-cols-3">
         <section className="min-h-[180px] rounded-xl border border-dashed border-white/10 bg-white/[0.03] p-3">

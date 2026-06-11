@@ -2,14 +2,18 @@ import Link from "next/link";
 import { CopyShortLinkButton } from "@/components/admin/CopyShortLinkButton";
 import { DeletePartnerButton } from "@/components/admin/DeletePartnerButton";
 import { HomeLayoutManager } from "@/components/admin/HomeLayoutManager";
+import { getSiteSettings } from "@/lib/data";
 import { prisma } from "@/lib/db";
 import { isChannelKind } from "@/lib/partner-kind";
 
 export default async function AdminPartnersPage() {
-  const partners = await prisma.partner.findMany({
-    include: { _count: { select: { bonuses: true } } },
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-  });
+  const [partners, settings] = await Promise.all([
+    prisma.partner.findMany({
+      include: { _count: { select: { bonuses: true } } },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+    }),
+    getSiteSettings(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -29,6 +33,7 @@ export default async function AdminPartnersPage() {
       </div>
 
       <HomeLayoutManager
+        pinnedPartnerId={settings.pinnedPartnerId}
         partners={partners.map((partner) => ({
           id: partner.id,
           name: partner.name,
@@ -103,7 +108,12 @@ export default async function AdminPartnersPage() {
                     ) : null}
                     {partner.isFeatured && isChannelKind(partner.kind) ? (
                       <span className="rounded-md bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700">
-                        На главной
+                        Промо-канал
+                      </span>
+                    ) : null}
+                    {settings.pinnedPartnerId === partner.id ? (
+                      <span className="rounded-md bg-amber-500/15 px-2 py-0.5 text-xs font-semibold text-amber-400">
+                        Закреплён
                       </span>
                     ) : null}
                   </div>

@@ -1,7 +1,11 @@
 import { Suspense } from "react";
 import { HomeShell } from "@/components/miniapp/HomeShell";
 import { MiniAppShell } from "@/components/miniapp/MiniAppShell";
-import { getActivePartners, getActiveViewerWins, getSiteSettings } from "@/lib/data";
+import {
+  getActivePartners,
+  getActiveViewerWins,
+  getSiteSettings,
+} from "@/lib/data";
 
 type PageProps = {
   searchParams: Promise<{ q?: string }>;
@@ -25,6 +29,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     logoDarkUrl: p.logoDarkUrl,
     personImageUrl: p.personImageUrl,
     cardScreenshotUrl: p.cardScreenshotUrl,
+    featuredCoinImageUrl: p.featuredCoinImageUrl,
     badge: p.badge,
     rating: p.rating,
     accentColor: p.accentColor,
@@ -56,6 +61,7 @@ export default async function HomePage({ searchParams }: PageProps) {
             siteTagline: settings.siteTagline,
             heroTitle: settings.heroTitle,
             searchPlaceholder: settings.searchPlaceholder,
+            pinnedPartnerId: settings.pinnedPartnerId,
           }}
           partners={serialized}
           viewerWins={viewerWins.map((win) => ({
@@ -69,6 +75,7 @@ export default async function HomePage({ searchParams }: PageProps) {
             telegramDisplayName: win.telegramDisplayName,
             winAmount: win.winAmount,
             winMultiplier: win.winMultiplier,
+            slotName: win.slotName,
             isBigWin: win.isBigWin,
             partner: win.partner,
           }))}

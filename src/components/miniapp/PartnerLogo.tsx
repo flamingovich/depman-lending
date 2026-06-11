@@ -10,7 +10,7 @@ type PartnerLogoProps = {
   logoLightUrl?: string | null;
   logoDarkUrl?: string | null;
   accentColor: string;
-  variant?: "strip" | "grid" | "gridHeader" | "compact" | "detail";
+  variant?: "strip" | "grid" | "gridHeader" | "compact" | "detail" | "featured";
   className?: string;
   forceTheme?: "light" | "dark";
 };
@@ -21,6 +21,7 @@ const LOGO_SIZES = {
   gridHeader: { width: 80, height: 32 },
   compact: { width: 72, height: 36 },
   detail: { width: 140, height: 44 },
+  featured: { width: 118, height: 38 },
 } as const;
 
 export function PartnerLogo({
@@ -46,6 +47,7 @@ export function PartnerLogo({
   const alignClass =
     variant === "strip" ||
     variant === "detail" ||
+    variant === "featured" ||
     variant === "gridHeader"
       ? "object-center"
       : "object-left";

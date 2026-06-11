@@ -26,6 +26,7 @@ export type HomePartner = {
   logoDarkUrl?: string | null;
   personImageUrl?: string | null;
   cardScreenshotUrl?: string | null;
+  featuredCoinImageUrl?: string | null;
   badge?: string | null;
   rating: number;
   accentColor: string;
@@ -54,6 +55,7 @@ type HomeShellProps = {
     siteTagline: string;
     heroTitle: string;
     searchPlaceholder: string;
+    pinnedPartnerId?: string | null;
   };
   partners: HomePartner[];
   viewerWins: ViewerWinItem[];
@@ -97,17 +99,15 @@ export function HomeShell({
     );
   }, [partners, searchQuery]);
 
-  const channels = useMemo(
-    () => filtered.filter((p) => isChannelKind(p.kind)),
-    [filtered],
-  );
   const casinos = useMemo(
     () => filtered.filter((p) => !isChannelKind(p.kind)),
     [filtered],
   );
 
-  const channelPromo =
-    channels.find((p) => p.isFeatured) ?? channels[0] ?? null;
+  const pinnedPartner = useMemo(() => {
+    if (!settings.pinnedPartnerId) return null;
+    return casinos.find((p) => p.id === settings.pinnedPartnerId) ?? null;
+  }, [casinos, settings.pinnedPartnerId]);
 
   const topPartners = useMemo(
     () =>
@@ -192,22 +192,20 @@ export function HomeShell({
       <main className="app-main-below-header tma-gutter-x space-y-3 overflow-visible pb-6">
         <NewBonusesStrip partners={newStrip} />
 
-        {channelPromo ? (
-          <div className="featured-card-wrap">
-            <FeaturedCard
-              kind={channelPromo.kind}
-              slug={channelPromo.slug}
-              name={channelPromo.name}
-              logoUrl={channelPromo.logoUrl}
-              logoLightUrl={channelPromo.logoLightUrl}
-              logoDarkUrl={channelPromo.logoDarkUrl}
-              personImageUrl={channelPromo.personImageUrl}
-              accentColor={channelPromo.accentColor}
-              features={channelPromo.features}
-              ctaText={channelPromo.ctaText}
-              affiliateUrl={channelPromo.affiliateUrl}
-            />
-          </div>
+        {pinnedPartner ? (
+          <FeaturedCard
+            slug={pinnedPartner.slug}
+            name={pinnedPartner.name}
+            logoUrl={pinnedPartner.logoUrl}
+            logoLightUrl={pinnedPartner.logoLightUrl}
+            logoDarkUrl={pinnedPartner.logoDarkUrl}
+            personImageUrl={pinnedPartner.personImageUrl}
+            cardScreenshotUrl={pinnedPartner.cardScreenshotUrl}
+            featuredCoinImageUrl={pinnedPartner.featuredCoinImageUrl}
+            accentColor={pinnedPartner.accentColor}
+            features={pinnedPartner.features}
+            affiliateUrl={pinnedPartner.affiliateUrl}
+          />
         ) : null}
 
         <ViewerWinsStrip wins={viewerWins} />

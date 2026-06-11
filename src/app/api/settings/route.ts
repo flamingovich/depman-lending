@@ -14,6 +14,7 @@ const settingsSchema = z.object({
   bottomBarRating: z.number().optional(),
   bottomBarCtaText: z.string().optional(),
   telegramBotUrl: z.string().optional().nullable(),
+  pinnedPartnerId: z.string().optional().nullable(),
 });
 
 export async function GET() {

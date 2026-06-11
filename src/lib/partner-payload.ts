@@ -31,12 +31,13 @@ export function buildPartnerPayload(
     logoUrl: optionalText(form.logoUrl),
     logoLightUrl: optionalText(form.logoLightUrl),
     logoDarkUrl: optionalText(form.logoDarkUrl),
-    personImageUrl: isChannelKind(form.kind)
-      ? nullableText(form.personImageUrl)
-      : null,
+    personImageUrl: nullableText(form.personImageUrl),
     cardScreenshotUrl: isChannelKind(form.kind)
       ? null
       : nullableText(form.cardScreenshotUrl),
+    featuredCoinImageUrl: isChannelKind(form.kind)
+      ? null
+      : nullableText(form.featuredCoinImageUrl),
     badge: optionalText(form.badge),
     rating: Number.isFinite(rating) ? rating : 5,
     accentColor: form.accentColor,

@@ -21,6 +21,7 @@ import {
   telegramDisplayName,
   telegramProfileUrl,
 } from "@/lib/telegram-url";
+import { useCarouselTouchScroll } from "@/lib/use-carousel-touch-scroll";
 
 export type ViewerWinItem = {
   id: string;
@@ -33,6 +34,7 @@ export type ViewerWinItem = {
   telegramDisplayName?: string | null;
   winAmount?: string | null;
   winMultiplier?: string | null;
+  slotName?: string | null;
   isBigWin?: boolean;
   partner: {
     id: string;
@@ -66,10 +68,12 @@ function winCrop(win: ViewerWinItem): CropRect {
 export function ViewerWinsStrip({ wins }: ViewerWinsStripProps) {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
+  useCarouselTouchScroll(scrollRef);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [step, setStep] = useState(180);
-  const maxIndex = Math.max(0, wins.length - VISIBLE);
+  const totalSlides = wins.length;
+  const maxIndex = Math.max(0, totalSlides - VISIBLE);
   const slideCount = maxIndex + 1;
 
   useLayoutEffect(() => {
@@ -90,7 +94,7 @@ export function ViewerWinsStrip({ wins }: ViewerWinsStripProps) {
     const observer = new ResizeObserver(measure);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [wins.length]);
+  }, [totalSlides]);
 
   const scrollToIndex = useCallback(
     (next: number, smooth = true) => {
@@ -181,8 +185,6 @@ export function ViewerWinsStrip({ wins }: ViewerWinsStripProps) {
     else window.open(affiliateUrl, "_blank", "noopener,noreferrer");
   }
 
-  if (wins.length === 0) return null;
-
   return (
     <section className="viewer-wins-section overflow-visible pt-1 pb-1">
       <HomeSectionTitle icon={Trophy}>Заносы зрителей</HomeSectionTitle>
@@ -269,6 +271,10 @@ export function ViewerWinsStrip({ wins }: ViewerWinsStripProps) {
                         {amount}
                       </p>
                     ) : null}
+
+                    {win.slotName?.trim() ? (
+                      <p className="viewer-win-slot-name">{win.slotName.trim()}</p>
+                    ) : null}
                   </div>
                 </div>
 
@@ -276,7 +282,7 @@ export function ViewerWinsStrip({ wins }: ViewerWinsStripProps) {
                   <a
                     href={win.partner.affiliateUrl ?? `/partner/${win.partner.slug}`}
                     onClick={(e) => openAffiliate(e, win.partner.affiliateUrl)}
-                    className="viewer-win-go-btn btn-outline-gold btn-outline-gold-play flex w-full items-center justify-center rounded-full py-2"
+                    className="viewer-win-action-btn viewer-win-go-btn btn-outline-gold rounded-full"
                     title={`Перейти на ${win.partner.name}`}
                     draggable={false}
                   >
@@ -315,6 +321,7 @@ export function ViewerWinsStrip({ wins }: ViewerWinsStripProps) {
           })}
         </div>
       ) : null}
+
     </section>
   );
 }

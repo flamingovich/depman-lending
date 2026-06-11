@@ -1,13 +1,12 @@
 "use client";
 
-import { Check, Copy, Star } from "lucide-react";
+import { Check, Copy, Play, Star } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CardScreenshotBackdrop } from "@/components/miniapp/CardScreenshotBackdrop";
 import { CheckItem } from "@/components/miniapp/CheckItem";
 import { PartnerLogo } from "@/components/miniapp/PartnerLogo";
-import { PaymentMethodsRow } from "@/components/miniapp/PaymentMethodsRow";
 import { ReviewModal } from "@/components/miniapp/ReviewModal";
 import { buildPartnerStats } from "@/lib/partner-stats";
 import { parseFeatures } from "@/lib/utils";
@@ -166,14 +165,13 @@ export function CasinoGridCard({ partner, preview = false }: CasinoGridCardProps
           </ul>
         ) : null}
 
-        <PaymentMethodsRow />
-
         <Link
           href={detailHref}
           onClick={openPartner}
-          className="btn-outline-gold btn-outline-gold-play mt-auto flex items-center justify-center rounded-full py-2.5"
+          className="btn-outline-gold btn-outline-gold-play mt-auto inline-flex items-center justify-center gap-1.5 rounded-full py-2.5"
           tabIndex={preview ? -1 : undefined}
         >
+          <Play className="size-3 shrink-0 fill-current" aria-hidden />
           Играть на {partner.name}
         </Link>
         </div>

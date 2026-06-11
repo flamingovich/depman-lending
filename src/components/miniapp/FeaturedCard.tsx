@@ -1,49 +1,54 @@
 "use client";
 
-import { Play } from "lucide-react";
+import { useMemo } from "react";
+import { Flame } from "lucide-react";
 import { CheckItem } from "@/components/miniapp/CheckItem";
-import { PartnerLogo } from "@/components/miniapp/PartnerLogo";
-import { isChannelKind } from "@/lib/partner-kind";
+import { CardScreenshotBackdrop } from "@/components/miniapp/CardScreenshotBackdrop";
 import { resolveLogoUrl } from "@/lib/logo-url";
+import { PartnerLogo } from "@/components/miniapp/PartnerLogo";
 import { parseFeatures } from "@/lib/utils";
 
 const DEFAULT_PERSON_IMAGE = "/images/depman.png";
 
-const YOUTUBE_RED = "#FF0000";
+const COINS_FRONT = ["d", "e"] as const;
 
 type FeaturedCardProps = {
-  kind: string;
   slug: string;
   name: string;
   logoUrl?: string | null;
   logoLightUrl?: string | null;
   logoDarkUrl?: string | null;
   personImageUrl?: string | null;
+  cardScreenshotUrl?: string | null;
+  featuredCoinImageUrl?: string | null;
   accentColor: string;
   features: string;
-  ctaText: string;
   affiliateUrl?: string | null;
 };
 
 export function FeaturedCard({
-  kind,
   slug,
   name,
   logoUrl,
   logoLightUrl,
   logoDarkUrl,
   personImageUrl,
+  cardScreenshotUrl,
+  featuredCoinImageUrl,
   accentColor,
   features,
-  ctaText,
   affiliateUrl,
 }: FeaturedCardProps) {
-  const items = parseFeatures(features).slice(0, 3);
-  const isChannel = isChannelKind(kind);
-  const brandColor = isChannel ? accentColor || YOUTUBE_RED : accentColor;
+  const brandColor = accentColor || "#ffd74d";
   const hasLogo = logoUrl || logoLightUrl || logoDarkUrl;
   const personSrc =
     resolveLogoUrl(personImageUrl ?? undefined) ?? DEFAULT_PERSON_IMAGE;
+  const coinSrc = resolveLogoUrl(featuredCoinImageUrl ?? undefined);
+
+  const featureItems = useMemo(
+    () => parseFeatures(features).slice(0, 3),
+    [features],
+  );
 
   function openPartner() {
     if (!affiliateUrl) {
@@ -56,91 +61,106 @@ export function FeaturedCard({
   }
 
   return (
-    <div className="featured-card-shell">
-      <article className={`featured-card${isChannel ? " featured-card--youtube" : ""}`}>
-        <div
-          className={`featured-card-bg${isChannel ? " featured-card-bg--channel" : ""}`}
-        />
-        {isChannel ? (
+    <div className="featured-card-wrap">
+      <div className="featured-card-shell">
+        <p className="featured-card-month-label">
+          <Flame
+            className="featured-card-month-label-icon"
+            fill="currentColor"
+            strokeWidth={1.5}
+            aria-hidden
+          />
+          ПРОЕКТ МЕСЯЦА
+        </p>
+        <article
+          className="featured-card featured-card--pinned"
+          style={{ ["--featured-accent" as string]: brandColor }}
+        >
+          <div className="featured-card-bg featured-card-bg--pinned" />
+          <CardScreenshotBackdrop url={cardScreenshotUrl} fadeSide="left" />
+
           <div className="featured-card-glow-clip" aria-hidden>
             <div
               className="featured-card-glow featured-card-glow--person"
               style={{ backgroundColor: brandColor }}
             />
           </div>
-        ) : (
-          <div
-            className="featured-card-glow featured-card-glow--default"
-            style={{ backgroundColor: brandColor }}
-          />
-        )}
 
-        <div
-          className="featured-card-body relative flex min-h-[168px] flex-col p-3.5"
-          style={isChannel ? { color: "#ffffff" } : undefined}
-        >
-        <div className="featured-card-main mb-2">
-          <div className="mb-2 flex items-center gap-2">
-            {hasLogo ? (
-              <div className="featured-card-logo flex h-9 w-9 shrink-0 items-center justify-center rounded-lg p-1.5">
-                <PartnerLogo
-                  name={name}
-                  logoUrl={logoUrl}
-                  logoLightUrl={logoLightUrl}
-                  logoDarkUrl={logoDarkUrl}
-                  accentColor={brandColor}
-                  variant="grid"
-                  className="mx-auto object-center!"
-                />
-              </div>
+          <div className="featured-card-person-anchor" aria-hidden>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={personSrc} alt="" className="featured-card-person" />
+
+            {coinSrc ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={coinSrc}
+                alt=""
+                className="featured-card-coin featured-card-coin--f"
+              />
             ) : null}
-            <p
-              className={`text-xl font-black uppercase tracking-tight ${
-                isChannel ? "featured-card-youtube-name" : ""
-              }`}
-              style={isChannel ? { color: "#ffffff" } : { color: brandColor }}
-            >
-              {name}
-            </p>
           </div>
 
-          <ul className="space-y-0.5">
-            {items.map((item) => (
-              <CheckItem
-                key={item}
-                textOnDark={isChannel}
-                iconVariant={isChannel ? "red" : "gold"}
+          {coinSrc ? (
+            <div
+              className="featured-card-coin-layer featured-card-coin-layer--front"
+              aria-hidden
+            >
+              {COINS_FRONT.map((variant) => (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  key={variant}
+                  src={coinSrc}
+                  alt=""
+                  className={`featured-card-coin featured-card-coin--${variant}`}
+                />
+              ))}
+            </div>
+          ) : null}
+
+          <div className="featured-card-body relative flex min-h-[152px] flex-col p-3">
+            <div className="featured-card-main mb-2">
+              {hasLogo ? (
+                <div className="featured-card-logo-slot mb-1.5 flex items-center">
+                  <PartnerLogo
+                    name={name}
+                    logoUrl={logoUrl}
+                    logoLightUrl={logoLightUrl}
+                    logoDarkUrl={logoDarkUrl}
+                    accentColor={brandColor}
+                    variant="featured"
+                    className="object-center!"
+                  />
+                </div>
+              ) : null}
+
+              {featureItems.length > 0 ? (
+                <ul className="featured-features-panel space-y-0.5">
+                  {featureItems.map((item) => (
+                    <CheckItem
+                      key={item}
+                      textOnDark
+                      accentColor={brandColor}
+                    >
+                      {item}
+                    </CheckItem>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+
+            <div className="featured-card-cta relative z-10 mt-auto">
+              <button
+                type="button"
+                onClick={openPartner}
+                className="relative z-10 flex w-full items-center justify-center rounded-[var(--radius-md)] py-2.5 text-xs font-bold text-white transition active:scale-[0.98]"
+                style={{ backgroundColor: brandColor }}
               >
-                {item}
-              </CheckItem>
-            ))}
-          </ul>
-        </div>
-
-        <div className="featured-card-cta relative z-10 mt-auto">
-          <button
-            type="button"
-            onClick={openPartner}
-            className={`relative z-10 flex w-full items-center justify-center gap-1.5 rounded-[var(--radius-md)] py-2.5 text-xs font-bold transition active:scale-[0.98] ${
-              isChannel ? "text-white" : "text-[#131323]"
-            }`}
-            style={{ backgroundColor: brandColor }}
-          >
-            <Play
-              className={`h-3.5 w-3.5 ${isChannel ? "fill-white text-white" : "fill-current"}`}
-            />
-            {ctaText}
-          </button>
-        </div>
+                Получить бонусы
+              </button>
+            </div>
+          </div>
+        </article>
       </div>
-    </article>
-
-      {isChannel ? (
-        <div className="featured-card-person-anchor" aria-hidden>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={personSrc} alt="" className="featured-card-person" />
-        </div>
-      ) : null}
     </div>
   );
 }

@@ -36,6 +36,7 @@ export default async function EditPartnerPage({ params }: PageProps) {
           logoDarkUrl: partner.logoDarkUrl ?? "",
           personImageUrl: partner.personImageUrl ?? "",
           cardScreenshotUrl: partner.cardScreenshotUrl ?? "",
+          featuredCoinImageUrl: partner.featuredCoinImageUrl ?? "",
           badge: partner.badge ?? "",
           rating: partner.rating,
           accentColor: partner.accentColor,

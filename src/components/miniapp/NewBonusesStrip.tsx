@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { PartnerLogo } from "@/components/miniapp/PartnerLogo";
+import { useCarouselTouchScroll } from "@/lib/use-carousel-touch-scroll";
 
 export type StripPartner = {
   id: string;
@@ -28,6 +29,7 @@ const AUTO_MS = 5000;
 
 export function NewBonusesStrip({ partners }: { partners: StripPartner[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  useCarouselTouchScroll(scrollRef);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [step, setStep] = useState(110);

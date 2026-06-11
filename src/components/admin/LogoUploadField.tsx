@@ -14,6 +14,7 @@ type LogoUploadFieldProps = {
   uploadVariant?: string;
   sizeHint?: string;
   enablePaste?: boolean;
+  prepareFile?: (file: File) => Promise<File>;
 };
 
 const PREVIEW_BACKGROUNDS = {
@@ -60,6 +61,7 @@ export function LogoUploadField({
   uploadVariant,
   sizeHint = "Рекомендуемый размер: 500×250 px, PNG без фона",
   enablePaste = false,
+  prepareFile,
 }: LogoUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const pasteZoneRef = useRef<HTMLDivElement>(null);
@@ -77,8 +79,23 @@ export function LogoUploadField({
       setUploadError(null);
       setPreviewError(null);
 
+      let prepared = file;
+      if (prepareFile) {
+        try {
+          prepared = await prepareFile(file);
+        } catch (error) {
+          setUploadError(
+            error instanceof Error
+              ? error.message
+              : "Не удалось обработать изображение",
+          );
+          setUploading(false);
+          return;
+        }
+      }
+
       const body = new FormData();
-      body.append("file", file);
+      body.append("file", prepared);
       body.append("prefix", uploadPrefix);
       if (uploadVariant) body.append("variant", uploadVariant);
 
@@ -101,7 +118,7 @@ export function LogoUploadField({
         setUploading(false);
       }
     },
-    [onChange, uploadPrefix, uploadVariant],
+    [onChange, prepareFile, uploadPrefix, uploadVariant],
   );
 
   async function pasteFromClipboard() {

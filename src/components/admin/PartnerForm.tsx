@@ -5,6 +5,7 @@ import { PersonImageUploadField } from "@/components/admin/PersonImageUploadFiel
 import { PartnerCardPreview } from "@/components/admin/PartnerCardPreview";
 import { ShortLinkField } from "@/components/admin/ShortLinkField";
 import { buildPartnerPayload } from "@/lib/partner-payload";
+import { processCoinImageInBrowser } from "@/lib/process-coin-image-client";
 import type { BonusInput, PartnerFormData } from "@/lib/partner-types";
 import { isChannelKind, PARTNER_KINDS } from "@/lib/partner-kind";
 import { useRouter } from "next/navigation";
@@ -249,7 +250,7 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
           {!isChannel ? (
             <LogoUploadField
               label="Скриншот на фоне карточки (опционально)"
-              hint="Фон справа на карточке в списке и блоке «Лучшие». PNG или JPG, до 8 МБ."
+              hint="Фон на карточке в списке и на закреплённом баннере. PNG или JPG, до 8 МБ."
               value={form.cardScreenshotUrl ?? ""}
               onChange={(url) => setForm({ ...form, cardScreenshotUrl: url })}
               uploadPrefix={`${logoPrefix}-screenshot`}
@@ -259,6 +260,41 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
               enablePaste
               previewTheme="dark"
             />
+          ) : null}
+
+          {!isChannel ? (
+            <section className="admin-card space-y-4 border border-amber-500/20 bg-amber-500/5 p-5 md:col-span-2">
+              <div>
+                <h2 className="text-base font-extrabold text-white">
+                  Закреплённый баннер на главной
+                </h2>
+                <p className="mt-1 text-xs text-slate-400">
+                  Фото справа на баннере. Без загрузки — depman.png. Выбор проекта — в
+                  «Раскладка на главной» на этой странице.
+                </p>
+              </div>
+
+              <PersonImageUploadField
+                value={form.personImageUrl ?? ""}
+                onChange={(url) => setForm({ ...form, personImageUrl: url })}
+                uploadPrefix={`${logoPrefix}-person`}
+              />
+
+              <LogoUploadField
+                label="Монетка на фоне баннера (опционально)"
+                hint="PNG 1:1 с прозрачным фоном. Летает на фоне закреплённой карточки."
+                value={form.featuredCoinImageUrl ?? ""}
+                onChange={(url) =>
+                  setForm({ ...form, featuredCoinImageUrl: url })
+                }
+                uploadPrefix={`${logoPrefix}-coin`}
+                accept="image/png,.png"
+                sizeHint="Квадратная монетка/фишка, прозрачный фон. Если больше 2 МБ — сожмём автоматически."
+                enablePaste
+                previewTheme="dark"
+                prepareFile={processCoinImageInBrowser}
+              />
+            </section>
           ) : null}
 
           <label className="block space-y-1">

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { isChannelKind } from "@/lib/partner-kind";
 
 export async function getSiteSettings() {
   let settings = await prisma.siteSettings.findUnique({
@@ -58,6 +59,18 @@ export async function getActiveViewerWins() {
     },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
   });
+}
+
+export async function getSubmitWinPartnerOptions() {
+  const partners = await prisma.partner.findMany({
+    where: { isActive: true },
+    select: { id: true, name: true, kind: true, sortOrder: true },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+  });
+
+  return partners
+    .filter((partner) => !isChannelKind(partner.kind))
+    .map(({ id, name }) => ({ id, name }));
 }
 
 export async function getPartnerBySlug(slug: string) {

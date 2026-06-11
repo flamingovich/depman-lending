@@ -16,6 +16,7 @@ const viewerWinSchema = z.object({
   telegramUsername: z.string().min(1).optional(),
   winAmount: z.string().optional(),
   winMultiplier: z.string().optional(),
+  slotName: z.string().optional(),
   sortOrder: z.number().int().optional(),
   isActive: z.boolean().optional(),
   isBigWin: z.boolean().optional(),
@@ -45,6 +46,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       telegramPhotoUrl?: string | null;
       winAmount?: string | null;
       winMultiplier?: string | null;
+      slotName?: string | null;
       sortOrder?: number;
       isActive?: boolean;
       isBigWin?: boolean;
@@ -82,6 +84,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (body.winMultiplier !== undefined) {
       data.winMultiplier = body.winMultiplier.trim() || null;
     }
+    if (body.slotName !== undefined) data.slotName = body.slotName.trim() || null;
     if (body.sortOrder !== undefined) data.sortOrder = body.sortOrder;
     if (body.isActive !== undefined) data.isActive = body.isActive;
     if (body.isBigWin !== undefined) data.isBigWin = body.isBigWin;

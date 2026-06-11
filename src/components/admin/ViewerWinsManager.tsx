@@ -28,6 +28,7 @@ type ViewerWinRow = {
   telegramPhotoUrl?: string | null;
   winAmount?: string | null;
   winMultiplier?: string | null;
+  slotName?: string | null;
   sortOrder: number;
   isActive: boolean;
   isBigWin: boolean;
@@ -42,6 +43,7 @@ type ViewerWinForm = {
   telegramUsername: string;
   winAmount: string;
   winMultiplier: string;
+  slotName: string;
   sortOrder: number;
   isActive: boolean;
   isBigWin: boolean;
@@ -60,6 +62,7 @@ const emptyForm = (partners: PartnerOption[]): ViewerWinForm => ({
   telegramUsername: "",
   winAmount: "",
   winMultiplier: "",
+  slotName: "",
   sortOrder: 0,
   isActive: true,
   isBigWin: false,
@@ -102,6 +105,7 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
       telegramUsername: win.telegramUsername ?? "",
       winAmount: win.winAmount ?? "",
       winMultiplier: win.winMultiplier?.replace(/^x/i, "") ?? "",
+      slotName: win.slotName ?? "",
       sortOrder: win.sortOrder,
       isActive: win.isActive,
       isBigWin: win.isBigWin,
@@ -124,6 +128,7 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
         telegramUsername: form.telegramUsername.trim(),
         winAmount: form.winAmount.trim(),
         winMultiplier: form.winMultiplier.trim(),
+        slotName: form.slotName.trim(),
         sortOrder: Number(form.sortOrder) || 0,
         isActive: form.isActive,
         isBigWin: form.isBigWin,
@@ -299,6 +304,16 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
           </label>
 
           <label className="block space-y-1">
+            <span className="text-sm font-semibold">Название слота</span>
+            <input
+              value={form.slotName}
+              onChange={(e) => setForm({ ...form, slotName: e.target.value })}
+              className="w-full rounded-xl border border-white/10 bg-[#162236] px-3 py-2"
+              placeholder="Sweet Bonanza"
+            />
+          </label>
+
+          <label className="block space-y-1">
             <span className="text-sm font-semibold">Порядок</span>
             <input
               type="number"
@@ -399,9 +414,16 @@ export function ViewerWinsManager({ wins, partners }: ViewerWinsManagerProps) {
                   </td>
                   <td className="px-4 py-3">
                     {amount ? (
-                      <span className="font-semibold">
-                        {amount}{multiplier ? ` / ${multiplier}` : ""}
-                      </span>
+                      <div className="space-y-1">
+                        <span className="font-semibold">
+                          {amount}{multiplier ? ` / ${multiplier}` : ""}
+                        </span>
+                        {win.slotName?.trim() ? (
+                          <p className="max-w-[160px] text-xs leading-snug text-slate-400">
+                            {win.slotName.trim()}
+                          </p>
+                        ) : null}
+                      </div>
                     ) : (
                       <span className="text-xs text-slate-500">—</span>
                     )}
