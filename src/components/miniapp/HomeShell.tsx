@@ -252,7 +252,7 @@ export function HomeShell({
           </section>
         ) : null}
 
-        {filtered.length === 0 && !channelPromo && casinos.length === 0 ? (
+        {filtered.length === 0 && casinos.length === 0 ? (
           <p className="surface-card rounded-[var(--radius-lg)] p-6 text-center text-sm text-[var(--muted)]">
             Проекты не найдены
           </p>
