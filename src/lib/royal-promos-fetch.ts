@@ -1,3 +1,8 @@
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
+
 const ROYAL_PROMOS_URL =
   "https://royal.partners/api/customer/v1/partner/promos";
 
@@ -57,6 +62,43 @@ export function groupPromosByCampaign(
   );
 }
 
+/**
+ * Cloudflare часто режет Node fetch по TLS fingerprint.
+ * curl с того же VPS проходит — используем его для Royal API.
+ */
+async function curlRoyalJson(
+  url: string,
+  royalToken: string,
+): Promise<{ status: number; body: string }> {
+  const { stdout } = await execFileAsync(
+    "curl",
+    [
+      "-sS",
+      "-w",
+      "\n%{http_code}",
+      "-H",
+      "Accept: application/json",
+      "-H",
+      "Content-Type: application/json",
+      "-H",
+      `Authorization: Bearer ${royalToken}`,
+      "--max-time",
+      "30",
+      url,
+    ],
+    { maxBuffer: 20 * 1024 * 1024 },
+  );
+
+  const trimmed = stdout.trimEnd();
+  const nl = trimmed.lastIndexOf("\n");
+  if (nl === -1) {
+    return { status: 0, body: trimmed };
+  }
+  const body = trimmed.slice(0, nl);
+  const status = Number(trimmed.slice(nl + 1));
+  return { status: Number.isFinite(status) ? status : 0, body };
+}
+
 async function fetchRoyalPromosPage(
   royalToken: string,
   campaignIds: string[],
@@ -73,34 +115,20 @@ async function fetchRoyalPromosPage(
   const maxAttempts = 5;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const response = await fetch(url, {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${royalToken}`,
-      },
-      cache: "no-store",
-    });
+    const { status, body } = await curlRoyalJson(url, royalToken);
 
-    if (response.status !== 429) {
-      if (!response.ok) {
-        const body = await response.text().catch(() => "");
+    if (status !== 429) {
+      if (status < 200 || status >= 300) {
         throw new Error(
-          `Royal promos HTTP ${response.status}${body ? `: ${body.slice(0, 200)}` : ""}`,
+          `Royal promos HTTP ${status}${body ? `: ${body.slice(0, 200)}` : ""}`,
         );
       }
-      return (await response.json()) as RoyalPromosListResponse;
+      return JSON.parse(body) as RoyalPromosListResponse;
     }
 
     if (attempt === maxAttempts - 1) break;
 
-    const ra = Number(response.headers.get("retry-after"));
-    const base =
-      Number.isFinite(ra) && ra > 0
-        ? Math.min(ra * 1000, 90_000)
-        : 2500 * 2 ** attempt;
-    const jitter = Math.floor(Math.random() * 400);
-    const waitMs = Math.min(120_000, base + jitter);
+    const waitMs = Math.min(120_000, 2500 * 2 ** attempt + Math.floor(Math.random() * 400));
     console.warn(
       `[RoyalPromos] page ${page}: 429, пауза ${waitMs}ms (попытка ${attempt + 1}/${maxAttempts})`,
     );
