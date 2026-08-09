@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CopyShortLinkButton } from "@/components/admin/CopyShortLinkButton";
 import { DeletePartnerButton } from "@/components/admin/DeletePartnerButton";
 import { HomeLayoutManager } from "@/components/admin/HomeLayoutManager";
+import { SyncAffiliateLinksButton } from "@/components/admin/SyncAffiliateLinksButton";
 import { getSiteSettings } from "@/lib/data";
 import { prisma } from "@/lib/db";
 import { isChannelKind } from "@/lib/partner-kind";
@@ -24,12 +25,15 @@ export default async function AdminPartnersPage() {
             Партнёрские проекты и их бонусы
           </p>
         </div>
-        <Link
-          href="/admin/partners/new"
-          className="rounded-xl bg-violet-600 px-4 py-3 text-sm font-bold text-white"
-        >
-          + Новый проект
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <SyncAffiliateLinksButton />
+          <Link
+            href="/admin/partners/new"
+            className="rounded-xl bg-violet-600 px-4 py-3 text-sm font-bold text-white"
+          >
+            + Новый проект
+          </Link>
+        </div>
       </div>
 
       <HomeLayoutManager
@@ -54,6 +58,7 @@ export default async function AdminPartnersPage() {
           <thead className="admin-table-head">
             <tr>
               <th className="px-4 py-3 font-semibold">Название</th>
+              <th className="px-4 py-3 font-semibold">Royal ID</th>
               <th className="px-4 py-3 font-semibold">Блок</th>
               <th className="px-4 py-3 font-semibold">Статус</th>
               <th className="px-4 py-3 font-semibold">Бонусы</th>
@@ -66,6 +71,15 @@ export default async function AdminPartnersPage() {
                 <td className="px-4 py-3">
                   <p className="font-bold">{partner.name}</p>
                   <p className="text-xs text-slate-400">/{partner.slug}</p>
+                </td>
+                <td className="px-4 py-3">
+                  {partner.royalCampaignId ? (
+                    <span className="font-mono text-xs text-slate-300">
+                      {partner.royalCampaignId}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-slate-500">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   {isChannelKind(partner.kind) ? (

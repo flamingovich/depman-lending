@@ -336,6 +336,21 @@ export function PartnerForm({ initial, mode }: PartnerFormProps) {
             />
           </label>
 
+          <label className="block space-y-1 md:col-span-2">
+            <span className="text-sm font-semibold">Royal Campaign ID</span>
+            <input
+              value={form.royalCampaignId ?? ""}
+              onChange={(e) =>
+                setForm({ ...form, royalCampaignId: e.target.value })
+              }
+              className="admin-input"
+              placeholder="1321875"
+            />
+            <p className="text-xs text-slate-400">
+              Если указано — ссылка обновляется автоматически из Royal Partners
+            </p>
+          </label>
+
           <ShortLinkField slug={form.slug ?? ""} />
 
           {!isChannel ? (

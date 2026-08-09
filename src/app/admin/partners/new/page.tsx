@@ -25,6 +25,7 @@ export default function NewPartnerPage() {
             "Быстрые депозиты и выводы",
           ]),
           affiliateUrl: "",
+          royalCampaignId: "",
           promoCode: "DEPMAN",
           bonus1Label: "Бонус за регистрацию",
           bonus1Value: "100 FS",

@@ -43,6 +43,7 @@ export function buildPartnerPayload(
     accentColor: form.accentColor,
     features,
     affiliateUrl: optionalText(form.affiliateUrl),
+    royalCampaignId: nullableText(form.royalCampaignId),
     promoCode: optionalText(form.promoCode),
     bonus1Label: optionalText(form.bonus1Label),
     bonus1Value: optionalText(form.bonus1Value),

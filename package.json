@@ -10,6 +10,7 @@
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "db:map-royal": "tsx prisma/map-royal-campaigns.ts",
     "db:restore-youtube": "tsx prisma/restore-youtube-channel.ts",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate"

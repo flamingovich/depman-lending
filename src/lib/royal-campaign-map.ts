@@ -1,0 +1,22 @@
+/** slug → Royal Partners campaign_id (основные EUR-кампании ppgchz) */
+export const ROYAL_CAMPAIGN_ID_BY_SLUG: Record<string, string> = {
+  lex: "1296512",
+  fresh: "1296513",
+  izzi: "1296514",
+  drip: "1296515",
+  sol: "1296516",
+  gizbo: "1296517",
+  monro: "1296518",
+  starda: "1296519",
+  jet: "1296520",
+  volna: "1296521",
+  rox: "1296522",
+  legzo: "1296523",
+  "1go": "1296524",
+  martin: "1296525",
+  flagman: "1296526",
+  irwin: "1296527",
+  beef: "1301588",
+  fugu: "1321875",
+  iris: "1338519",
+};

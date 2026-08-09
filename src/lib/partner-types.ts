@@ -20,6 +20,7 @@ export type PartnerFormData = {
   accentColor: string;
   features: string;
   affiliateUrl?: string;
+  royalCampaignId?: string;
   promoCode?: string;
   bonus1Label?: string;
   bonus1Value?: string;

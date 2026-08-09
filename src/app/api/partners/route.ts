@@ -35,6 +35,7 @@ const partnerSchema = z.object({
   accentColor: z.string().optional(),
   features: z.array(z.string()).optional(),
   affiliateUrl: z.string().optional(),
+  royalCampaignId: z.string().nullish(),
   promoCode: z.string().optional(),
   bonus1Label: z.string().optional(),
   bonus1Value: z.string().optional(),

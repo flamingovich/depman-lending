@@ -49,6 +49,9 @@ model Partner {
   accentColor String   @default("#b8ff3c")
   features    String   @default("[]")
   affiliateUrl String?
+  royalCampaignId      String?
+  affiliateUrlSyncedAt DateTime?
+  affiliateUrlSource   String?
   promoCode   String?
   bonus1Label String?
   bonus1Value String?

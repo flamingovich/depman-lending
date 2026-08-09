@@ -42,6 +42,7 @@ export default async function EditPartnerPage({ params }: PageProps) {
           accentColor: partner.accentColor,
           features: partner.features,
           affiliateUrl: partner.affiliateUrl ?? "",
+          royalCampaignId: partner.royalCampaignId ?? "",
           promoCode: partner.promoCode ?? "",
           bonus1Label: partner.bonus1Label ?? "",
           bonus1Value: partner.bonus1Value ?? "",
