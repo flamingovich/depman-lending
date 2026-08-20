@@ -31,9 +31,12 @@ export function getTelegramTheme(): ThemeMode | null {
   return null;
 }
 
+/** Без явного выбора показываем тёмную тему — и в Telegram, и в вебе. */
+export const DEFAULT_THEME: ThemeMode = "dark";
+
 export function resolveTheme(preference: ThemePreference): ThemeMode {
   if (preference === "light" || preference === "dark") return preference;
-  return getTelegramTheme() ?? getSystemTheme();
+  return DEFAULT_THEME;
 }
 
 export const TELEGRAM_THEME_COLORS: Record<

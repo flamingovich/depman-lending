@@ -126,6 +126,14 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* Тёмная по умолчанию: фон и системные элементы (скроллбары, поля ввода)
+     должны быть тёмными ещё до того, как отработает JS. */
+  color-scheme: dark;
+  background: var(--bg);
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
 }
 
 html[data-app="miniapp"] {

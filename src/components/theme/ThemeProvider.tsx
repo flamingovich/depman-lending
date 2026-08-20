@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import {
+  DEFAULT_THEME,
   resolveTheme,
   storePreference,
   getStoredPreference,
@@ -50,7 +51,7 @@ function applyThemeToDocument(theme: ThemeMode) {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [preference, setPreferenceState] = useState<ThemePreference>("auto");
-  const [theme, setTheme] = useState<ThemeMode>("light");
+  const [theme, setTheme] = useState<ThemeMode>(DEFAULT_THEME);
 
   const syncResolvedTheme = useCallback((pref: ThemePreference) => {
     const resolved = resolveTheme(pref);

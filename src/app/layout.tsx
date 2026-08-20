@@ -21,10 +21,9 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f4f9" },
-    { media: "(prefers-color-scheme: dark)", color: "#050e1c" },
-  ],
+  // Один тег без media: Safari на iOS красит им полосу статус-бара, а
+  // media-варианты он не перечитывает, когда тему меняют кнопкой в шапке.
+  themeColor: "#050e1c",
 };
 
 export default function RootLayout({
