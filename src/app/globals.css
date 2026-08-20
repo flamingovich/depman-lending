@@ -152,6 +152,13 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-montserrat), system-ui, sans-serif;
+}
+
+/* Плавный переход включаем только после первой отрисовки: тему выставляет
+   блокирующий скрипт в <head>, и начатый в этот момент transition залипает
+   на светлом значении — из-за этого в тёмной теме под статус-баром на iOS
+   оставалась светлая полоса. */
+html[data-theme-ready] body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 

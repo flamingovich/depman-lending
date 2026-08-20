@@ -64,6 +64,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setPreferenceState(stored);
     syncResolvedTheme(stored);
 
+    const markThemeReady = () => {
+      document.documentElement.setAttribute("data-theme-ready", "");
+    };
+    // rAF не срабатывает в фоновой вкладке, поэтому дублируем таймером.
+    const readyFrame = requestAnimationFrame(markThemeReady);
+    const readyTimer = window.setTimeout(markThemeReady, 200);
+
     const onSystemChange = () => {
       if (getStoredPreference() === "auto") {
         syncResolvedTheme("auto");
@@ -89,6 +96,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener("depman-telegram-ready", onTelegramReady);
 
     return () => {
+      cancelAnimationFrame(readyFrame);
+      window.clearTimeout(readyTimer);
       media.removeEventListener("change", onSystemChange);
       window.Telegram?.WebApp?.offEvent?.("themeChanged", onTelegramTheme);
       window.removeEventListener("depman-telegram-ready", onTelegramReady);
