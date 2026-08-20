@@ -3,6 +3,10 @@ import path from "path";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
 import {
+  optimizeUploadImage,
+  resolveUploadRole,
+} from "@/lib/process-upload-image";
+import {
   formatMegabytes,
   MAX_LOGO_UPLOAD_BYTES,
   MAX_PERSON_UPLOAD_BYTES,
@@ -75,17 +79,31 @@ export async function POST(request: Request) {
       );
     }
 
-    const ext = fileExtension(file);
     const prefix = safePrefix(String(formData.get("prefix") ?? "logo"));
-    const filename = isPerson
-      ? `${prefix}-${Date.now()}.png`
-      : `${prefix}-${Date.now()}.${ext}`;
     const uploadDir = path.join(process.cwd(), "public", "uploads", "logos");
 
     await mkdir(uploadDir, { recursive: true });
 
     const raw = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(uploadDir, filename), raw);
+
+    // Ужимаем всё, что грузит админка: сырые PNG со скриншотов весят мегабайты
+    // и раньше уезжали пользователю как есть.
+    let data: Uint8Array = raw;
+    let ext = fileExtension(file);
+
+    try {
+      const optimized = await optimizeUploadImage(
+        raw,
+        resolveUploadRole(variant, prefix),
+      );
+      data = optimized.data;
+      ext = optimized.ext;
+    } catch (error) {
+      console.error("[upload] optimize failed, saving original", error);
+    }
+
+    const filename = `${prefix}-${Date.now()}.${ext}`;
+    await writeFile(path.join(uploadDir, filename), data);
 
     return NextResponse.json({ url: `/uploads/logos/${filename}` });
   } catch (error) {
