@@ -73,14 +73,39 @@ export async function getSubmitWinPartnerOptions() {
     .map(({ id, name }) => ({ id, name }));
 }
 
+const partnerInclude = {
+  bonuses: {
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" as const },
+  },
+};
+
+/**
+ * Ссылки набирают руками, поэтому регистр не должен ничего решать:
+ * depman.vip/BEEF обязан вести туда же, куда depman.vip/beef.
+ * SQLite сравнивает строки побайтово, так что на промах ищем сами.
+ */
 export async function getPartnerBySlug(slug: string) {
-  return prisma.partner.findFirst({
-    where: { slug, isActive: true },
-    include: {
-      bonuses: {
-        where: { isActive: true },
-        orderBy: { sortOrder: "asc" },
-      },
-    },
+  const trimmed = slug.trim();
+
+  const exact = await prisma.partner.findFirst({
+    where: { slug: trimmed, isActive: true },
+    include: partnerInclude,
+  });
+  if (exact) return exact;
+
+  const normalized = trimmed.toLowerCase();
+  const candidates = await prisma.partner.findMany({
+    where: { isActive: true },
+    select: { id: true, slug: true },
+  });
+  const match = candidates.find(
+    (partner) => partner.slug.toLowerCase() === normalized,
+  );
+  if (!match) return null;
+
+  return prisma.partner.findUnique({
+    where: { id: match.id },
+    include: partnerInclude,
   });
 }

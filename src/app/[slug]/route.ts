@@ -15,9 +15,12 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   const partner = await getPartnerBySlug(slug);
-  if (!partner?.affiliateUrl) {
+  const target = partner?.affiliateUrl?.trim();
+
+  // Заглушки вроде "#" раньше улетали в redirect() и роняли роут в 500.
+  if (!target || !/^https?:\/\//i.test(target)) {
     notFound();
   }
 
-  return NextResponse.redirect(partner.affiliateUrl, 302);
+  return NextResponse.redirect(target, 302);
 }

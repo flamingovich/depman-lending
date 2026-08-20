@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { checkRateLimit, clientIp, tooManyRequests } from "@/lib/rate-limit";
 import { sendWinSubmissionToAdmin } from "@/lib/telegram-notify";
 import { MAX_PERSON_UPLOAD_BYTES, formatMegabytes } from "@/lib/upload-limits";
 import { normalizeTelegramUsername } from "@/lib/telegram-url";
@@ -69,8 +70,23 @@ const bodySchema = z.object({
   slotName: z.string().min(1),
 });
 
+const SUBMIT_LIMIT = 3;
+const SUBMIT_WINDOW_MS = 15 * 60 * 1000;
+
 export async function POST(request: Request) {
   try {
+    const limit = checkRateLimit(
+      `win-submit:${clientIp(request)}`,
+      SUBMIT_LIMIT,
+      SUBMIT_WINDOW_MS,
+    );
+    if (!limit.ok) {
+      return tooManyRequests(
+        "Слишком много заявок подряд. Попробуйте через несколько минут.",
+        limit.retryAfterSeconds,
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get("screenshot");
     const parsed = bodySchema.safeParse({

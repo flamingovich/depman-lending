@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { checkRateLimit, clientIp, tooManyRequests } from "@/lib/rate-limit";
 
 const reviewSchema = z.object({
   rating: z.number().int().min(1).max(5),
@@ -38,8 +39,23 @@ export async function GET(_request: Request, context: RouteContext) {
   return NextResponse.json(reviews);
 }
 
+const REVIEW_LIMIT = 5;
+const REVIEW_WINDOW_MS = 60 * 60 * 1000;
+
 export async function POST(request: Request, context: RouteContext) {
   try {
+    const limit = checkRateLimit(
+      `review:${clientIp(request)}`,
+      REVIEW_LIMIT,
+      REVIEW_WINDOW_MS,
+    );
+    if (!limit.ok) {
+      return tooManyRequests(
+        "Слишком много отзывов подряд. Попробуйте позже.",
+        limit.retryAfterSeconds,
+      );
+    }
+
     const { id } = await context.params;
     const body = reviewSchema.parse(await request.json());
 

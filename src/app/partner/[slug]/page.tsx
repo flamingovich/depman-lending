@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { PartnerDetailShell } from "@/components/miniapp/PartnerDetailShell";
 import { getPartnerBySlug } from "@/lib/data";
 import { parseFeatures } from "@/lib/utils";
@@ -11,6 +11,7 @@ export default async function PartnerPage({ params }: PageProps) {
   const { slug } = await params;
   const partner = await getPartnerBySlug(slug);
   if (!partner) notFound();
+  if (partner.slug !== slug) permanentRedirect(`/partner/${partner.slug}`);
 
   return (
     <PartnerDetailShell

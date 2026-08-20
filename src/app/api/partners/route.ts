@@ -34,7 +34,13 @@ const partnerSchema = z.object({
   rating: z.number().optional(),
   accentColor: z.string().optional(),
   features: z.array(z.string()).optional(),
-  affiliateUrl: z.string().optional(),
+  affiliateUrl: z
+    .string()
+    .refine(
+      (value) => value === "" || /^https?:\/\//i.test(value),
+      "Ссылка должна начинаться с http:// или https://",
+    )
+    .optional(),
   royalCampaignId: z.string().nullish(),
   promoCode: z.string().optional(),
   bonus1Label: z.string().optional(),
